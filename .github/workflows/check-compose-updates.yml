@@ -5,87 +5,193 @@ on:
     - cron: '0 0 * * 0'  # Run weekly on Sunday at midnight UTC
   workflow_dispatch:  # Allow manual triggering
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   check-updates:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+        with:
+          fetch-depth: 0  # need history to get per-file last modified times
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
-      - name: Install dependencies
-        run: npm install node-fetch
         
       - name: Check for updates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          node --input-type=module << 'EOF'
-          import fetch from 'node-fetch';
-          import fs from 'fs';
-          import path from 'path';
-          
-          // Dynamically discover compose files and their sources
-          function discoverComposeFiles() {
-            const files = [];
-            const composeExtensions = ['.yaml', '.yml'];
-            
-            // Get all files in current directory
-            const allFiles = fs.readdirSync('.');
-            
-            for (const file of allFiles) {
-              const ext = path.extname(file);
-              if (composeExtensions.includes(ext)) {
-                try {
-                  const content = fs.readFileSync(file, 'utf8');
-                  const lines = content.split('\n');
-                  
-                  // Extract source URLs from comments
-                  for (const line of lines) {
-                    const match = line.match(/^\s*#\s*(https?:\/\/[^\s]+)/);
-                    if (match) {
+          node <<'EOF'
+          (async () => {
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
+
+            function discoverComposeFiles() {
+              const files = [];
+              const composeExtensions = ['.yaml', '.yml'];
+              const allFiles = fs.readdirSync('.');
+              for (const file of allFiles) {
+                const ext = path.extname(file).toLowerCase();
+                if (composeExtensions.includes(ext)) {
+                  try {
+                    const content = fs.readFileSync(file, 'utf8');
+                    const lines = content.split('\n');
+                    // Extract the first URL in a comment line (e.g., "# https://...")
+                    for (const line of lines) {
+                      const match = line.match(
+                        /^\s*#\s*(?:Source:?\s*)?(https?:\/\/\S+)/
+                      );
+                      if (!match) continue;
                       const url = match[1];
-                      // Convert GitHub URLs to raw URLs if needed
-                      let rawUrl = url;
-                      if (url.includes('github.com') && url.includes('/blob/')) {
-                        rawUrl = url
-                          .replace('github.com', 'raw.githubusercontent.com')
-                          .replace('/blob/', '/');
-                      }
-                      
                       files.push({
                         local: file,
-                        original: rawUrl,
-                        name: path.basename(file, ext)
+                        original: url,
+                        name: path.basename(file, ext),
                       });
+                      break; // only use the first URL per file
                     }
+                  } catch (error) {
+                    console.error(`Error reading ${file}:`, error.message);
                   }
-                } catch (error) {
-                  console.error(`Error reading ${file}:`, error.message);
                 }
               }
+              return files;
             }
-            
-            return files;
-          }
-          
-          const composeFiles = discoverComposeFiles();
-          
-          let updatesFound = false;
-          let message = '🔄 Compose File Updates Check\n\n';
-          
-          for (const file of composeFiles) {
-            try {
-              console.log(`Checking ${file.name}...`);
-              
-              // Fetch original file
-              const response = await fetch(file.original);
-              if (!response.ok) {
-                console.log(`Failed to fetch ${file.original}: ${response.status}`);
-                continue;
+
+            function parseGithubUrl(urlStr) {
+              try {
+                const u = new URL(urlStr);
+                if (u.hostname === 'github.com') {
+                  const parts = u.pathname.split('/').filter(Boolean);
+                  // /owner/repo/blob/ref/path...
+                  if (parts.length >= 5 && parts[2] === 'blob') {
+                    const owner = parts[0];
+                    const repo = parts[1];
+                    const ref = parts[3];
+                    const filePath = parts.slice(4).join('/');
+                    return { owner, repo, ref, filePath };
+                  }
+                }
+                if (u.hostname === 'raw.githubusercontent.com') {
+                  const parts = u.pathname.split('/').filter(Boolean);
+                  // /owner/repo/ref/path...
+                  if (parts.length >= 4) {
+                    const owner = parts[0];
+                    const repo = parts[1];
+                    const ref = parts[2];
+                    const filePath = parts.slice(3).join('/');
+                    return { owner, repo, ref, filePath };
+                  }
+                }
+              } catch (_) {}
+              return null;
+            }
+
+            async function getGithubFileLastModified(meta) {
+              const { owner, repo, ref, filePath } = meta;
+              const url =
+                `https://api.github.com/repos/${owner}/${repo}/commits` +
+                `?path=${encodeURIComponent(filePath)}` +
+                `&sha=${encodeURIComponent(ref)}&per_page=1`;
+              const res = await fetch(url, {
+                headers: {
+                  Accept: 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  // no Authorization needed to read public repos; omit to avoid
+                  // cross-repo perms issues. Add Bearer if you need higher rate.
+                },
+              });
+              if (!res.ok) return null;
+              const arr = await res.json();
+              const c = arr && arr[0] && arr[0].commit;
+              const d =
+                (c && c.committer && c.committer.date) ||
+                (c && c.author && c.author.date) ||
+                null;
+              return d ? new Date(d).toISOString() : null;
+            }
+
+            async function getHttpLastModified(url) {
+              try {
+                const head = await fetch(url, { method: 'HEAD' });
+                if (!head.ok) return null;
+                const lm = head.headers.get('last-modified');
+                return lm ? new Date(lm).toISOString() : null;
+              } catch (_) {
+                return null;
               }
+            }
+
+            function getLocalLastModified(localPath) {
+              try {
+                const iso = execSync(
+                  `git log -1 --format=%cI -- "${localPath}"`,
+                  { encoding: 'utf8' }
+                )
+                  .trim()
+                  .replace(/\r$/, '');
+                return iso || null;
+              } catch (_) {
+                return null;
+              }
+            }
+
+            const composeFiles = discoverComposeFiles();
+          
+let updatesFound = false;
+            let message = '🔄 Compose File Updates Check\n\n';
+
+            for (const file of composeFiles) {
+              try {
+                console.log(`Checking ${file.name}...`);
+                const gh = parseGithubUrl(file.original);
+                let upstream = null;
+                if (gh) {
+                  upstream = await getGithubFileLastModified(gh);
+                } else {
+                  upstream = await getHttpLastModified(file.original);
+                }
+                const local = getLocalLastModified(file.local);
+
+                const upstreamStr = upstream || 'unknown';
+                const localStr = local || 'unknown';
+
+                let needsUpdate = false;
+                if (upstream && local) {
+                  needsUpdate = new Date(upstream) > new Date(local);
+                } else if (upstream && !local) {
+                  // no local timestamp (e.g., shallow history) -> flag
+                  needsUpdate = true;
+                } else {
+                  // if upstream unknown, we can't decide; don't flag
+                  needsUpdate = false;
+                }
+
+                if (needsUpdate) {
+                  updatesFound = true;
+                  message += `⚠️ ${file.name} has upstream changes.\n`;
+                  message += `   Upstream: ${upstreamStr}\n`;
+                  message += `   Local:    ${localStr}\n`;
+                  message += `   Source:   ${file.original}\n`;
+                  message += `   File:     ${file.local}\n\n`;
+                } else {
+                  message += `✅ ${file.name} is up to date by timestamp\n`;
+                  message += `   Upstream: ${upstreamStr}\n`;
+                  message += `   Local:    ${localStr}\n\n`;
+                }
+              } catch (error) {
+                console.error(`Error checking ${file.name}:`, error.message);
+                message += `❌ Error checking ${file.name}: ${error.message}\n\n`;
+              }
+            }
               
               const originalContent = await response.text();
               const localContent = fs.readFileSync(file.local, 'utf8');
@@ -122,66 +228,67 @@ jobs:
             message += '\n🎉 All compose files are up to date!';
           }
           
-          // Create issue if updates found
-          if (updatesFound) {
-            const issueTitle = 'Compose File Updates Available';
-            const issueBody = message + '\n\n---\n*This issue was automatically generated by GitHub Actions*';
-            
-            // Check if issue already exists
-            const existingIssues = await fetch('https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=compose-updates', {
-              headers: {
-                'Authorization': `token ${{ secrets.GITHUB_TOKEN }}`,
-                'Accept': 'application/vnd.github.v3+json'
-              }
-            });
-            
-            if (existingIssues.ok) {
-              const issues = await existingIssues.json();
-              if (issues.length === 0) {
-                // Create new issue
-                const createIssue = await fetch('https://api.github.com/repos/${{ github.repository }}/issues', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `token ${{ secrets.GITHUB_TOKEN }}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    title: issueTitle,
-                    body: issueBody,
-                    labels: ['compose-updates', 'automation']
-                  })
-                });
-                
-                if (createIssue.ok) {
-                  const issue = await createIssue.json();
-                  console.log(`Created issue: ${issue.html_url}`);
+// Create issue if updates found
+            if (updatesFound) {
+              const issueTitle = 'Compose File Updates Available';
+              const issueBody =
+                message +
+                '\n\n---\n*This issue was automatically generated by GitHub Actions*';
+
+              // Check if issue already exists
+              const repo = process.env.GITHUB_REPOSITORY;
+              const token = process.env.GITHUB_TOKEN;
+              const base = `https://api.github.com/repos/${repo}`;
+              const headers = {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+                'Content-Type': 'application/json',
+              };
+              const existingIssues = await fetch(
+                `${base}/issues?state=open&labels=compose-updates`,
+                { headers }
+              );
+
+              if (existingIssues.ok) {
+                const issues = await existingIssues.json();
+                if (issues.length === 0) {
+                  // Create new issue
+                  const createIssue = await fetch(`${base}/issues`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                      title: issueTitle,
+                      body: issueBody,
+                      labels: ['compose-updates', 'automation']
+                    })
+                  });
+
+                  if (createIssue.ok) {
+                    const issue = await createIssue.json();
+                    console.log(`Created issue: ${issue.html_url}`);
+                  } else {
+                    console.error('Failed to create issue');
+                  }
                 } else {
-                  console.error('Failed to create issue');
-                }
-              } else {
-                // Update existing issue
-                const issueNumber = issues[0].number;
-                const updateIssue = await fetch(`https://api.github.com/repos/${{ github.repository }}/issues/${issueNumber}`, {
-                  method: 'PATCH',
-                  headers: {
-                    'Authorization': `token ${{ secrets.GITHUB_TOKEN }}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    body: issueBody
-                  })
-                });
-                
-                if (updateIssue.ok) {
-                  console.log(`Updated issue: ${issues[0].html_url}`);
-                } else {
-                  console.error('Failed to update issue');
+                  // Update existing issue
+                  const issueNumber = issues[0].number;
+                  const updateIssue = await fetch(`${base}/issues/${issueNumber}`, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify({
+                      body: issueBody
+                    })
+                  });
+
+                  if (updateIssue.ok) {
+                    console.log(`Updated issue: ${issues[0].html_url}`);
+                  } else {
+                    console.error('Failed to update issue');
+                  }
                 }
               }
             }
-          }
           
           // Output result for logs
           console.log(message);
