@@ -2,8 +2,8 @@ name: Check Compose File Updates
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Run weekly on Sunday at midnight UTC
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 0 * * 0' # Run weekly on Sunday at midnight UTC
+  workflow_dispatch: # Allow manual triggering
 
 permissions:
   contents: read
@@ -16,13 +16,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # need history to get per-file last modified times
-          
+          fetch-depth: 0 # need history to get per-file last modified times
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-        
+
       - name: Check for updates
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,27 +40,24 @@ jobs:
               const allFiles = fs.readdirSync('.');
               for (const file of allFiles) {
                 const ext = path.extname(file).toLowerCase();
-                if (composeExtensions.includes(ext)) {
-                  try {
-                    const content = fs.readFileSync(file, 'utf8');
-                    const lines = content.split('\n');
-                    // Extract the first URL in a comment line (e.g., "# https://...")
-                    for (const line of lines) {
-                      const match = line.match(
-                        /^\s*#\s*(?:Source:?\s*)?(https?:\/\/\S+)/
-                      );
-                      if (!match) continue;
-                      const url = match[1];
-                      files.push({
-                        local: file,
-                        original: url,
-                        name: path.basename(file, ext),
-                      });
-                      break; // only use the first URL per file
-                    }
-                  } catch (error) {
-                    console.error(`Error reading ${file}:`, error.message);
+                if (!composeExtensions.includes(ext)) continue;
+                try {
+                  const content = fs.readFileSync(file, 'utf8');
+                  const lines = content.split('\n');
+                  // Extract the first URL in a comment line (e.g., "# https://..." or "# Source: https://...")
+                  for (const line of lines) {
+                    const match = line.match(/^\s*#\s*(?:Source:?\s*)?(https?:\/\/\S+)/);
+                    if (!match) continue;
+                    const url = match[1];
+                    files.push({
+                      local: file,
+                      original: url,
+                      name: path.basename(file, ext),
+                    });
+                    break; // only use the first URL per file
                   }
+                } catch (error) {
+                  console.error(`Error reading ${file}:`, error.message);
                 }
               }
               return files;
@@ -101,14 +98,13 @@ jobs:
                 `https://api.github.com/repos/${owner}/${repo}/commits` +
                 `?path=${encodeURIComponent(filePath)}` +
                 `&sha=${encodeURIComponent(ref)}&per_page=1`;
-              const res = await fetch(url, {
-                headers: {
-                  Accept: 'application/vnd.github+json',
-                  'X-GitHub-Api-Version': '2022-11-28',
-                  // no Authorization needed to read public repos; omit to avoid
-                  // cross-repo perms issues. Add Bearer if you need higher rate.
-                },
-              });
+              const headers = {
+                Accept: 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+                // Add Authorization if you hit rate limits:
+                // Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+              };
+              const res = await fetch(url, { headers });
               if (!res.ok) return null;
               const arr = await res.json();
               const c = arr && arr[0] && arr[0].commit;
@@ -192,50 +188,13 @@ jobs:
                 message += `❌ Error checking ${file.name}: ${error.message}\n\n`;
               }
             }
-              
-              const originalContent = await response.text();
-              const localContent = fs.readFileSync(file.local, 'utf8');
-              
-              // Compare content (ignoring comments and whitespace)
-              const normalizeContent = (content) => {
-                return content
-                  .split('\n')
-                  .filter(line => !line.trim().startsWith('#'))
-                  .map(line => line.trim())
-                  .filter(line => line.length > 0)
-                  .join('\n');
-              };
-              
-              const normalizedOriginal = normalizeContent(originalContent);
-              const normalizedLocal = normalizeContent(localContent);
-              
-              if (normalizedOriginal !== normalizedLocal) {
-                updatesFound = true;
-                message += `⚠️ ${file.name} has updates available!\n`;
-                message += `   Original: ${file.original}\n`;
-                message += `   Local: ${file.local}\n\n`;
-              } else {
-                message += `✅ ${file.name} is up to date\n`;
-              }
-              
-            } catch (error) {
-              console.error(`Error checking ${file.name}:`, error.message);
-              message += `❌ Error checking ${file.name}: ${error.message}\n\n`;
-            }
-          }
-          
-          if (!updatesFound) {
-            message += '\n🎉 All compose files are up to date!';
-          }
-          
-// Create issue if updates found
-            if (updatesFound) {
-              const issueTitle = 'Compose File Updates Available';
-              const issueBody =
-                message +
-                '\n\n---\n*This issue was automatically generated by GitHub Actions*';
 
-              // Check if issue already exists
+            if (!updatesFound) {
+              message += '\n🎉 All compose files are up to date!';
+            }
+
+            // Create or update issue if updates found
+            if (updatesFound) {
               const repo = process.env.GITHUB_REPOSITORY;
               const token = process.env.GITHUB_TOKEN;
               const base = `https://api.github.com/repos/${repo}`;
@@ -245,6 +204,13 @@ jobs:
                 'X-GitHub-Api-Version': '2022-11-28',
                 'Content-Type': 'application/json',
               };
+
+              const issueTitle = 'Compose File Updates Available';
+              const issueBody =
+                message +
+                '\n\n---\n*This issue was automatically generated by GitHub Actions*';
+
+              // Find any open issue with the label; alternatively search by title
               const existingIssues = await fetch(
                 `${base}/issues?state=open&labels=compose-updates`,
                 { headers }
@@ -260,10 +226,9 @@ jobs:
                     body: JSON.stringify({
                       title: issueTitle,
                       body: issueBody,
-                      labels: ['compose-updates', 'automation']
-                    })
+                      labels: ['compose-updates', 'automation'],
+                    }),
                   });
-
                   if (createIssue.ok) {
                     const issue = await createIssue.json();
                     console.log(`Created issue: ${issue.html_url}`);
@@ -271,29 +236,31 @@ jobs:
                     console.error('Failed to create issue');
                   }
                 } else {
-                  // Update existing issue
+                  // Update the first existing issue
                   const issueNumber = issues[0].number;
                   const updateIssue = await fetch(`${base}/issues/${issueNumber}`, {
                     method: 'PATCH',
                     headers,
-                    body: JSON.stringify({
-                      body: issueBody
-                    })
+                    body: JSON.stringify({ body: issueBody }),
                   });
-
                   if (updateIssue.ok) {
                     console.log(`Updated issue: ${issues[0].html_url}`);
                   } else {
                     console.error('Failed to update issue');
                   }
                 }
+              } else {
+                console.error('Failed to query existing issues');
               }
             }
-          
-          // Output result for logs
-          console.log(message);
+
+            console.log(message);
+          })().catch((err) => {
+            console.error(err);
+            process.exit(1);
+          });
           EOF
-          
+
       - name: Comment on issue if updates found
         if: success()
         run: |
