@@ -145,8 +145,8 @@ jobs:
             }
 
             const composeFiles = discoverComposeFiles();
-          
-let updatesFound = false;
+
+            let updatesFound = false;
             let message = '🔄 Compose File Updates Check\n\n';
 
             for (const file of composeFiles) {
