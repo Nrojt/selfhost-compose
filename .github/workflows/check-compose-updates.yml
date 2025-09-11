@@ -22,10 +22,10 @@ jobs:
         
       - name: Check for updates
         run: |
-          node << 'EOF'
-          const fetch = require('node-fetch');
-          const fs = require('fs');
-          const path = require('path');
+          node --input-type=module << 'EOF'
+          import fetch from 'node-fetch';
+          import fs from 'fs';
+          import path from 'path';
           
           // Dynamically discover compose files and their sources
           function discoverComposeFiles() {
