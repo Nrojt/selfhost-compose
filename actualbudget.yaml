@@ -5,10 +5,9 @@ services:
     environment:
       - SERVICE_URL_ACTUAL_5006
       - ACTUAL_LOGIN_METHOD=password
+      - ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB=25
     volumes:
       - 'actual_data:/data'
-    environment:
-      - ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB=25
     healthcheck:
       test:
         - CMD-SHELL
