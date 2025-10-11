@@ -76,7 +76,7 @@ services:
 
       # TRIGGER: use standard Docker trigger
       # pull new image and restart the running container
-      WUD_TRIGGER_DOCKER_0_OPTIONS_MODE: pullandrestart
+      WUD_TRIGGER_DOCKER_0_MODE: pullandrestart
       # act only on containers with the watch label
       WUD_TRIGGER_DOCKER_0_FILTER_LABEL: wud.watch.enable=true
 
