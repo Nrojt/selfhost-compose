@@ -61,7 +61,7 @@ services:
     environment:
       - TZ=Europe/Amsterdam
       - WUD_API_BIND=0.0.0.0
-      - WUD_TRIGGER_DOCKER=pull-and-restart
+      - WUD_TRIGGER_DOCKER_1={"name":"docker","options":{"mode":"pullandrestart"}}
       # Daily cron 03:00 local time
       - WUD_WATCHER_DOCKER_LOCAL_CRON=0 3 * * *
       - WUD_WATCHER_DOCKER_LOCAL_WATCHBYDEFAULT=false
