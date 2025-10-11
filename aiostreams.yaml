@@ -30,7 +30,7 @@ services:
     device_cgroup_rules:
       - 'c 10:200 rwm'
     expose:
-      - "1080"
+      - 1080
     environment:
       - WARP_SLEEP=5
     cap_add:
