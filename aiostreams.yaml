@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     pull_policy: always
     ports:
-      - 3000:3000
+      - "3000:3000"
     env_file:
       - .env
     volumes:
@@ -29,7 +29,7 @@ services:
     device_cgroup_rules:
       - "c 10:200 rwm"
     expose:
-      - 1080
+      - "1080"
     environment:
       - WARP_SLEEP=5
     cap_add:
@@ -60,9 +60,9 @@ services:
     container_name: wud
     restart: unless-stopped
     ports:
-      - 3001:3001
+      - "3001:3001"
     expose:
-      - 3001
+      - "3001"
     environment:
       TZ: Europe/Amsterdam
 
@@ -75,12 +75,13 @@ services:
       WUD_WATCHER_LOCAL_WATCHATSTART: "true"
 
       # TRIGGER: Docker (v8 syntax)
+      # mode simple = pull/restart/prune actions
       WUD_TRIGGER_DOCKER_0_MODE: simple
       WUD_TRIGGER_DOCKER_0_PULL: "true"
       WUD_TRIGGER_DOCKER_0_RESTART: "true"
       WUD_TRIGGER_DOCKER_0_PRUNE: "true"
 
-      # Limit to watched containers (label-based include filter)
+      # Limit to watched containers via label filter (valid in v8)
       WUD_TRIGGER_DOCKER_0_INCLUDE_LABEL: wud.watch.enable=true
 
     volumes:
