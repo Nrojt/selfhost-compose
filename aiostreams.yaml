@@ -74,11 +74,8 @@ services:
       WUD_WATCHER_LOCAL_WATCHBYDEFAULT: "false"
       WUD_WATCHER_LOCAL_WATCHATSTART: "true"
 
-      # TRIGGER: Docker (v8 syntax - no include filters)
+      # TRIGGER: Docker (v8 syntax - simple mode handles everything)
       WUD_TRIGGER_DOCKER_0_MODE: simple
-      WUD_TRIGGER_DOCKER_0_PULL: "true"
-      WUD_TRIGGER_DOCKER_0_RESTART: "true"
-      WUD_TRIGGER_DOCKER_0_PRUNE: "true"
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
