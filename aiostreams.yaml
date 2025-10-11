@@ -4,6 +4,7 @@ services:
     image: ghcr.io/viren070/aiostreams:latest
     container_name: aiostreams
     restart: unless-stopped
+    pull_policy: always
     ports:
       - 3000:3000
     env_file:
@@ -58,6 +59,8 @@ services:
     restart: unless-stopped
     ports:
       - 3001:3000
+    expose:
+      - 3000
     environment:
       TZ: Europe/Amsterdam
 
