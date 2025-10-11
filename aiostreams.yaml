@@ -63,6 +63,8 @@ services:
     restart: unless-stopped
     ports:
       - 3001:3001
+    expose:
+      - 3001
     environment:
       TZ: Europe/Amsterdam
 
@@ -74,10 +76,14 @@ services:
       WUD_WATCHER_LOCAL_WATCHBYDEFAULT: false
       WUD_WATCHER_LOCAL_WATCHATSTART: true
 
-      # TRIGGER: use standard Docker trigger
-      # pull new image and restart the running container
-      WUD_TRIGGER_DOCKER_0_MODE: pullandrestart
-      # act only on containers with the watch label
+      # TRIGGER: Docker
+      # Run updates one-by-one, pull images, then restart containers
+      WUD_TRIGGER_DOCKER_0_MODE: simple
+      WUD_TRIGGER_DOCKER_0_PULL: "true"
+      WUD_TRIGGER_DOCKER_0_RESTART: "true"
+      # Optional cleanup of old images after successful update
+      WUD_TRIGGER_DOCKER_0_PRUNE: "true"
+      # Limit to watched containers
       WUD_TRIGGER_DOCKER_0_FILTER_LABEL: wud.watch.enable=true
 
     volumes:
