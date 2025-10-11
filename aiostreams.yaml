@@ -11,7 +11,10 @@ services:
     volumes:
       - ./data:/app/data
     labels:
-      - wud.watch.enable=true           # allow wud to watch this service
+      - wud.watch.enable=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$$
+      - wud.watch.digest=true
+      - wud.link.template=https://github.com/Viren070/AIOStreams/releases/tag/v$${major}.$${minor}.$${patch}
     healthcheck:
       test: wget -qO- http://localhost:3000/api/v1/status
       interval: 1m
@@ -21,7 +24,7 @@ services:
 
 # https://github.com/cmj2002/warp-docker/blob/main/docker-compose.yml
   warp:
-    image: caomingjun/warp
+    image: caomingjun/warp:latest
     container_name: warp
     restart: unless-stopped
     device_cgroup_rules:
@@ -38,7 +41,9 @@ services:
     volumes:
       - ./warp:/var/lib/cloudflare-warp
     labels:
-      - wud.watch.enable=true           # allow wud to watch this service
+      - wud.watch.enable=true
+      - wud.tag.include=latest
+      - wud.watch.digest=true
     healthcheck:
       test: curl -x "socks5h://127.0.0.1:1080" -fsSL "https://www.cloudflare.com/cdn-cgi/trace" | grep -qE "warp=(plus|on)" || exit 1
       interval: 1m
@@ -46,17 +51,31 @@ services:
       retries: 3
       start_period: 5s
 
-  # wud – watches selected containers and auto-updates every night at 03:00 Amsterdam time
+  # WUD – daily check at 03:00 Amsterdam time, Docker trigger auto-update
   wud:
     image: getwud/wud:latest
     container_name: wud
     restart: unless-stopped
     ports:
-      - 3001:3000                 # optional web UI
+      - 3001:3000
     environment:
       - TZ=Europe/Amsterdam
-      - WUD_TRIGGER_SCHEDULE=0 3 * * *           # nightly cron schedule
-      - WUD_TRIGGER_DOCKER=pull-and-restart     # auto-pull & restart via socket
+      - WUD_API_BIND=0.0.0.0
+      - WUD_TRIGGER_DOCKER=pull-and-restart
+      # Daily cron 03:00 local time
+      - WUD_WATCHER_DOCKER_LOCAL_CRON=0 3 * * *
+      - WUD_WATCHER_DOCKER_LOCAL_WATCHBYDEFAULT=false
+      - WUD_WATCHER_DOCKER_LOCAL_WATCHATSTART=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./wud-store:/wud-store                 # persist wud database
+      - ./wud-store:/wud-store
+    healthcheck:
+      test: wget -qO- http://localhost:3000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    labels:
+      - wud.watch.enable=true
+      - wud.tag.include=^\d+\.\d+\.\d+$$
+      - wud.link.template=https://github.com/getwud/wud/releases/tag/$${major}.$${minor}.$${patch}
