@@ -1,4 +1,3 @@
-# https://github.com/Viren070/AIOStreams/blob/main/compose.yaml
 services:
   aiostreams:
     image: ghcr.io/viren070/aiostreams:latest
@@ -13,7 +12,7 @@ services:
       - ./data:/app/data
     labels:
       - wud.watch.enable=true
-      - wud.tag.include=^v\d+\.\d+\.\d+$$
+      - wud.tag.include=^v\d+\.\d+\.\d+$
       - wud.watch.digest=true
       - wud.link.template=https://github.com/Viren070/AIOStreams/releases/tag/v$${major}.$${minor}.$${patch}
     healthcheck:
@@ -23,7 +22,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # https://github.com/cmj2002/warp-docker/blob/main/docker-compose.yml
   warp:
     image: caomingjun/warp:latest
     container_name: warp
@@ -73,17 +71,17 @@ services:
 
       # WATCHER: listen to local Docker engine and check daily at 03:00
       WUD_WATCHER_LOCAL_CRON: 0 3 * * *
-      WUD_WATCHER_LOCAL_WATCHBYDEFAULT: false
-      WUD_WATCHER_LOCAL_WATCHATSTART: true
+      WUD_WATCHER_LOCAL_WATCHBYDEFAULT: "false"
+      WUD_WATCHER_LOCAL_WATCHATSTART: "true"
 
-      # TRIGGER: Docker
+      # TRIGGER: Docker (v8 syntax)
       # Run updates one-by-one, pull images, then restart containers
       WUD_TRIGGER_DOCKER_0_MODE: simple
       WUD_TRIGGER_DOCKER_0_PULL: "true"
       WUD_TRIGGER_DOCKER_0_RESTART: "true"
       # Optional cleanup of old images after successful update
       WUD_TRIGGER_DOCKER_0_PRUNE: "true"
-      # Limit to watched containers
+      # Limit to watched containers (fixes: "filter" is not allowed)
       WUD_TRIGGER_DOCKER_0_FILTER_LABEL: wud.watch.enable=true
 
     volumes:
@@ -97,5 +95,5 @@ services:
       start_period: 10s
     labels:
       - wud.watch.enable=true
-      - wud.tag.include=^\d+\.\d+\.\d+$$
+      - wud.tag.include=^\d+\.\d+\.\d+$
       - wud.link.template=https://github.com/getwud/wud/releases/tag/$${major}.$${minor}.$${patch}
