@@ -67,7 +67,7 @@ services:
       TZ: Europe/Amsterdam
 
       # Web UI port
-      WUD_SERVER_PORT: 3001
+      WUD_SERVER_PORT:3001
 
       # WATCHER: listen to local Docker engine and check daily at 03:00
       WUD_WATCHER_LOCAL_CRON: 0 3 * * *
