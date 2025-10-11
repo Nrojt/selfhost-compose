@@ -17,7 +17,7 @@ services:
       - wud.watch.digest=true
       - wud.link.template=https://github.com/Viren070/AIOStreams/releases/tag/v$${major}.$${minor}.$${patch}
     healthcheck:
-      test: wget -qO- http://localhost:3000/api/v1/status
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
       interval: 1m
       timeout: 10s
       retries: 5
@@ -46,7 +46,7 @@ services:
       - wud.tag.include=latest
       - wud.watch.digest=true
     healthcheck:
-      test: curl -x "socks5h://127.0.0.1:1080" -fsSL "https://www.cloudflare.com/cdn-cgi/trace" | grep -qE "warp=(plus|on)" || exit 1
+      test: ["CMD-SHELL", "curl -x 'socks5h://127.0.0.1:1080' -fsSL 'https://www.cloudflare.com/cdn-cgi/trace' | grep -qE 'warp=(plus|on)' || exit 1"]
       interval: 1m
       timeout: 5s
       retries: 3
@@ -58,30 +58,26 @@ services:
     container_name: wud
     restart: unless-stopped
     ports:
-      - 3001:3000
-    expose:
-      - 3000
+      - 3001:3001
     environment:
       TZ: Europe/Amsterdam
 
       # Web UI port (v8)
-      WUD_SERVER_PORT: 3000
+      WUD_SERVER_PORT: 3001
 
       # Auto update (docker compose pull+restart)
-      WUD_TRIGGER_DOCKERCOMPOSE_DOCKER1: >
-        { "options": { "mode": "pullandrestart" } }
+      WUD_TRIGGER_DOCKERCOMPOSE_0_OPTIONS_MODE: pullandrestart
 
       # Daily cron 03:00 local time
       WUD_WATCHER_LOCAL_CRON: 0 3 * * *
       WUD_WATCHER_LOCAL_WATCHBYDEFAULT: false
       WUD_WATCHER_LOCAL_WATCHATSTART: true
 
-
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./wud-store:/store
     healthcheck:
-      test: wget -qO- http://localhost:3000/health || exit 1
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
       interval: 30s
       timeout: 5s
       retries: 5
