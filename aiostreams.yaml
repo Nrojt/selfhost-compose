@@ -75,14 +75,13 @@ services:
       WUD_WATCHER_LOCAL_WATCHATSTART: "true"
 
       # TRIGGER: Docker (v8 syntax)
-      # Run updates one-by-one, pull images, then restart containers
       WUD_TRIGGER_DOCKER_0_MODE: simple
       WUD_TRIGGER_DOCKER_0_PULL: "true"
       WUD_TRIGGER_DOCKER_0_RESTART: "true"
-      # Optional cleanup of old images after successful update
       WUD_TRIGGER_DOCKER_0_PRUNE: "true"
-      # Limit to watched containers (fixes: "filter" is not allowed)
-      WUD_TRIGGER_DOCKER_0_FILTER_LABEL: wud.watch.enable=true
+
+      # Limit to watched containers (label-based include filter)
+      WUD_TRIGGER_DOCKER_0_INCLUDE_LABEL: wud.watch.enable=true
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
