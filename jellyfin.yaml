@@ -6,11 +6,8 @@ services:
     ports:
       - "9999:9999"
     volumes:
-      - ./zurg/config.yml:/app/config.yml:ro
-      - ./zurg/data:/app/data
-      - ./zurg/log:/app/log
-      - ./zurg/dump:/app/dump
-      - ./zurg/trash:/app/trash
+      - zurg-config:/app
+      - zurg-data:/app/data
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9999 || exit 1"]
       interval: 30s
@@ -26,8 +23,8 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - ./rclone/rclone.conf:/config/rclone/rclone.conf:ro
-      - /mnt/zurg:/data:rshared
+      - rclone-config:/config/rclone
+      - zurg-mount:/data:rshared
     cap_add:
       - SYS_ADMIN
     security_opt:
@@ -67,7 +64,7 @@ services:
       - JELLYFIN_PublishedServerUrl=${SERVICE_URL_JELLYFIN}
     volumes:
       - jellyfin-config:/config
-      - /mnt/zurg/__all__:/media:ro
+      - zurg-mount/__all__:/media:ro
     ports:
       - "8096:8096"
     depends_on:
@@ -80,4 +77,13 @@ services:
       retries: 15
 
 volumes:
+  zurg-config:
+  zurg-data:
+  rclone-config:
+  zurg-mount:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/zurg
   jellyfin-config:
