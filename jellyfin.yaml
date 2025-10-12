@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   zurg:
     image: ghcr.io/debridmediamanager/zurg:latest
@@ -6,13 +8,13 @@ services:
     ports:
       - "9999:9999"
     volumes:
-      - ./zurg/config.yml:/app/config.yml
+      - ./zurg/config.yml:/app/config.yml:ro
       - ./zurg/data:/app/data
       - ./zurg/log:/app/log
       - ./zurg/dump:/app/dump
       - ./zurg/trash:/app/trash
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9999"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9999 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -25,33 +27,44 @@ services:
       - TZ=Europe/Madrid
       - PUID=1000
       - PGID=1000
+    # Ensure the host path exists: mkdir -p /mnt/zurg
     volumes:
-      - ./rclone/rclone.conf:/config/rclone/rclone.conf
+      - ./rclone/rclone.conf:/config/rclone/rclone.conf:ro
       - /mnt/zurg:/data:rshared
     cap_add:
       - SYS_ADMIN
     security_opt:
       - apparmor:unconfined
     devices:
-      - /dev/fuse
-    command: mount zurg: /data
-      --allow-other
-      --allow-non-empty
-      --dir-cache-time 10s
-      --buffer-size 0M
-      --vfs-cache-mode minimal
-      --vfs-read-chunk-size 1M
-      --vfs-read-chunk-size-limit 32M
-      --vfs-read-ahead 128M
-      --poll-interval 15s
-      --bwlimit off:100M
-      --log-level INFO
+      - /dev/fuse:/dev/fuse
+    # Use list form for proper argument parsing
+    command:
+      - mount
+      - zurg:
+      - /data
+      - --config=/config/rclone/rclone.conf
+      - --allow-other
+      - --dir-cache-time=10s
+      - --buffer-size=0M
+      - --vfs-cache-mode=minimal
+      - --vfs-read-chunk-size=1M
+      - --vfs-read-chunk-size-limit=32M
+      - --vfs-read-ahead=128M
+      - --poll-interval=15s
+      - --bwlimit=off:100M
+      - --log-level=INFO
     depends_on:
       zurg:
         condition: service_healthy
+    # Healthcheck: rclone has 'rc' but we can just check mount present
+    healthcheck:
+      test: ["CMD-SHELL", "mount | grep -q ' on /data '"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   jellyfin:
-    image: 'lscr.io/linuxserver/jellyfin:latest'
+    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
     environment:
       - PUID=1000
@@ -64,13 +77,13 @@ services:
     ports:
       - "8096:8096"
     healthcheck:
-      test:
-        - CMD
-        - curl
-        - '-f'
-        - 'http://127.0.0.1:8096'
-      interval: 2s
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8096 || exit 1"]
+      interval: 10s
       timeout: 10s
       retries: 15
     depends_on:
-      - rclone
+      rclone:
+        condition: service_healthy
+
+volumes:
+  jellyfin-config:
