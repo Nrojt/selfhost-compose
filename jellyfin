@@ -1,0 +1,79 @@
+services:
+  zurg:
+    image: ghcr.io/debridmediamanager/zurg:latest
+    container_name: zurg
+    restart: unless-stopped
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./zurg/config.yml:/app/config.yml
+      - ./zurg/data:/app/data
+      - ./zurg/log:/app/log
+      - ./zurg/dump:/app/dump
+      - ./zurg/trash:/app/trash
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  rclone:
+    image: rclone/rclone:latest
+    container_name: rclone
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Madrid
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./rclone/rclone.conf:/config/rclone/rclone.conf
+      - /mnt/zurg:/data:rshared
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse
+    command: mount zurg: /data
+      --allow-other
+      --allow-non-empty
+      --dir-cache-time 10s
+      --buffer-size 0M
+      --vfs-cache-mode minimal
+      --vfs-read-chunk-size 1M
+      --vfs-read-chunk-size-limit 32M
+      --vfs-read-ahead 128M
+      --poll-interval 15s
+      --bwlimit off:100M
+      --log-level INFO
+    depends_on:
+      zurg:
+        condition: service_healthy
+
+  jellyfin:
+    image: 'lscr.io/linuxserver/jellyfin:latest'
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - JELLYFIN_PublishedServerUrl=${SERVICE_URL_JELLYFIN}
+    volumes:
+      - jellyfin-config:/config
+      - /mnt/zurg/__all__:/media:ro
+    ports:
+      - "8096:8096"
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://127.0.0.1:8096'
+      interval: 2s
+      timeout: 10s
+      retries: 15
+    depends_on:
+      - rclone
+
+volumes:
+  jellyfin-config:
