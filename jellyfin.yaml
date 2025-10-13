@@ -35,6 +35,8 @@ services:
     volumes:
       - /var/lib/rclone/config/rclone.conf:/config/rclone/rclone.conf:ro
       - /mnt/zurg:/mnt/zurg:rshared
+    depends_on:
+      - zurg
     command: >-
       mount zurg: /mnt/zurg
       --config /config/rclone/rclone.conf
@@ -42,7 +44,6 @@ services:
       --poll-interval 0
       --vfs-cache-mode full
       --allow-other
-      --allow-non-empty
       --uid 1000
       --gid 1000
 
