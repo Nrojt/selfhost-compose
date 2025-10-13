@@ -8,10 +8,6 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/app/data
-    environment:
-      - FORCE_PROXY_ID=stremthru
-      - FORCE_PROXY_URL=http://stremthru-proxy:8888
-      - FORCE_PROXY_PROXIED_SERVICES: '["realdebrid"]'
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
       interval: 1m
@@ -46,17 +42,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
-
-  stremthru-proxy:
-    image: ghcr.io/dydhzo/stremthru-proxy:latest
-    ports:
-      - "8888:8080"
-    environment:
-      - STREMTHRU_BASE_URL=http://localhost:8888
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8888/v0/health"]
-      interval: 1m
-      timeout: 10s
-      retries: 5
-      start_period: 10s
