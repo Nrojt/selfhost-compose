@@ -1,4 +1,3 @@
-# https://github.com/actualbudget/actual/blob/master/packages/sync-server/docker-compose.yml
 services:
   actual_server:
     image: 'actualbudget/actual-server:latest-alpine'

@@ -8,6 +8,10 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/app/data
+    environment:
+      - FORCE_PROXY_ID=mediaflow
+      - FORCE_PROXY_URL=http://mediaflow-proxy:8888
+      - FORCE_PROXY_PROXIED_SERVICES=realdebrid
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
       interval: 1m
@@ -42,3 +46,18 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+
+  mediaflow-proxy:
+    image: 'mhdzumair/mediaflow-proxy:latest'
+    restart: unless-stopped
+    ports:
+      - '8888:8888'
+    environment:
+      - FORWARDED_ALLOW_IPS=172.18.0.0/16
+      - DISABLE_HOME_PAGE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/docs"]
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 10s
