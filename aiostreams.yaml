@@ -9,8 +9,8 @@ services:
     volumes:
       - ./data:/app/data
     environment:
-      - FORCE_PROXY_ID=mediaflow
-      - FORCE_PROXY_URL=http://mediaflow-proxy:8888
+      - FORCE_PROXY_ID=stremthru
+      - FORCE_PROXY_URL=http://stremthru-proxy:8080
       - FORCE_PROXY_PROXIED_SERVICES: '["realdebrid"]'
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
@@ -47,12 +47,10 @@ services:
       retries: 3
       start_period: 5s
 
-  mediaflow-proxy:
-    image: 'mhdzumair/mediaflow-proxy:latest'
-    restart: unless-stopped
+  stremthru-proxy:
+    image: ghcr.io/dydhzo/stremthru-proxy:latest
     ports:
-      - '8888:8888'
+      - "8080:8080"
     environment:
-      - FORWARDED_ALLOW_IPS=127.0.0.1,172.17.0.1
-      - DISABLE_HOME_PAGE=true
-      - DISABLE_SPEEDTEST=true
+      - STREMTHRU_BASE_URL=http://localhost:8080
+    restart: unless-stopped
