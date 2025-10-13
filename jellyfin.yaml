@@ -16,6 +16,33 @@ services:
       timeout: 10s
       retries: 5
 
+  # rclone sidecar that mounts the zurg remote under /mnt/zurg
+  rclone-zurg:
+    image: rclone/rclone:latest
+    container_name: rclone-zurg
+    restart: unless-stopped
+    network_mode: host
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - TZ=Europe/Madrid
+    volumes:
+      - /var/lib/rclone/config/rclone.conf:/config/rclone/rclone.conf:ro
+      - /mnt/zurg:/mnt/zurg:rshared
+    command: >
+      mount zurg: /mnt/zurg
+      --config /config/rclone/rclone.conf
+      --dir-cache-time 10s
+      --poll-interval 0
+      --vfs-cache-mode full
+      --allow-other
+      --uid 1000
+      --gid 1000
+
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
@@ -26,11 +53,12 @@ services:
       - TZ=Europe/Madrid
     ports:
       - '8096:8096'
-    volumes:
-      - jellyfin-config:/config
-      - zurg-media:/media/zurg:ro
     depends_on:
       - zurg
+      - rclone-zurg
+    volumes:
+      - jellyfin-config:/config
+      - /mnt/zurg:/media/zurg:ro
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8096']
       interval: 30s
@@ -39,14 +67,3 @@ services:
 
 volumes:
   jellyfin-config:
-  zurg-media:
-    driver: rclone
-    driver_opts:
-      config: '/var/lib/rclone/config'
-      cache-dir: '/var/lib/rclone/cache'
-
-      remote: 'zurg:'
-      allow_other: 'true'
-      vfs_cache_mode: full
-      poll_interval: 0
-      dir_cache_time: 10s
