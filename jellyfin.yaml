@@ -49,7 +49,7 @@ services:
       --gid 1000
 
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
+    image: jellyfin/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
     environment:
