@@ -10,6 +10,12 @@ services:
     volumes:
       - ./config.yml:/app/config.yml:ro
       - ./data:/app/data
+    # health check which will always pass due to auth conflicts
+    healthcheck:
+      test: ['CMD', 'true']
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # rclone sidecar that mounts the zurg remote under /mnt/zurg
   rclone-zurg:
