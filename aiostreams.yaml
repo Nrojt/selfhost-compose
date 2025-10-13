@@ -6,8 +6,6 @@ services:
     pull_policy: always
     ports:
       - "3000:3000"
-    env_file:
-      - .env
     volumes:
       - ./data:/app/data
     healthcheck:
