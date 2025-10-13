@@ -23,26 +23,26 @@ services:
     restart: unless-stopped
     network_mode: host
     devices:
-    - /dev/fuse
+      - /dev/fuse
     cap_add:
-    - SYS_ADMIN
+      - SYS_ADMIN
     security_opt:
-    - apparmor:unconfined
+      - apparmor:unconfined
     environment:
-    - TZ=Europe/Madrid
+      - TZ=Europe/Madrid
     volumes:
-    - /var/lib/rclone/config/rclone.conf:/config/rclone/rclone.conf:ro
-    - /mnt/zurg:/mnt/zurg:rshared
-    command: >
-    mount zurg: /mnt/zurg
-    --config /config/rclone/rclone.conf
-    --dir-cache-time 10s
-    --poll-interval 0
-    --vfs-cache-mode full
-    --allow-other
-    --allow-non-empty
-    --uid 1000
-    --gid 1000
+      - /var/lib/rclone/config/rclone.conf:/config/rclone/rclone.conf:ro
+      - /mnt/zurg:/mnt/zurg:rshared
+    command: >-
+      mount zurg: /mnt/zurg
+      --config /config/rclone/rclone.conf
+      --dir-cache-time 10s
+      --poll-interval 0
+      --vfs-cache-mode full
+      --allow-other
+      --allow-non-empty
+      --uid 1000
+      --gid 1000
 
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
