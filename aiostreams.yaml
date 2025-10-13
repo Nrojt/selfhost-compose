@@ -53,4 +53,6 @@ services:
     ports:
       - '8888:8888'
     environment:
-      - FORWARDED_ALLOW_IPS=127.0.0.1
+      - FORWARDED_ALLOW_IPS=127.0.0.1,172.17.0.1
+      - DISABLE_HOME_PAGE=true
+      - DISABLE_SPEEDTEST=true
