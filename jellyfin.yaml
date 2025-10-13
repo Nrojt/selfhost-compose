@@ -11,7 +11,7 @@ services:
       - ./config.yml:/app/config.yml:ro
       - ./data:/app/data
     healthcheck:
-      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:9999/dav/version.txt']
+      test: ['CMD-SHELL', 'curl -fsS http://$ZURG_USER:$ZURG_PASS@127.0.0.1:9999/dav/version.txt']
       interval: 30s
       timeout: 10s
       retries: 5
