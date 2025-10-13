@@ -8,7 +8,8 @@ services:
     ports:
       - '9999:9999'
     volumes:
-      - ./config.yml:/app/config.yml:ro
+      # Use the config file located in /root/zurg-jellyfin/config.yml
+      - /root/zurg-jellyfin/config.yml:/app/config.yml:ro
       - ./data:/app/data
     # health check which will always pass due to auth conflicts
     healthcheck:
