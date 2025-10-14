@@ -38,6 +38,8 @@ services:
         source: /root/zurg-jellyfin/rclone/rclone.conf
         target: /config/rclone/rclone.conf
         read_only: true
+        is_directory: false
+        content: ""
       - /mnt/zurg:/mnt/zurg:rshared
     depends_on:
       - zurg
