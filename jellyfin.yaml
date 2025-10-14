@@ -220,8 +220,8 @@ services:
       - SONARR_HOST=http://sonarr4k:8989
     volumes:
       - /mnt:/mnt:rshared
-      - /mnt/symlinks/radarr4k:/mnt/symlinks/radarr
-      - /mnt/symlinks/sonarr4k:/mnt/symlinks/sonarr
+      - /mnt/symlinks/radarr4k:/mnt/symlinks/radarr4k
+      - /mnt/symlinks/sonarr4k:/mnt/symlinks/sonarr4k
     depends_on:
       - radarr4k
       - sonarr4k
