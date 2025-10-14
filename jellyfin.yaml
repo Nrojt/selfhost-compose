@@ -65,9 +65,5 @@ services:
 volumes:
   jellyfin-config:
   zurgmnt:
-    driver: rclone
-    driver_opts:
-      remote: zurg:
-      config: /root/zurg-jellyfin/rclone/rclone.conf
-      vfs_cache_mode: full
-      allow_other: "true"
+    external: true
+    name: zurgmnt
