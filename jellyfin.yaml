@@ -34,9 +34,7 @@ services:
       - zurg
     volumes:
       - jellyfin-config:/config
-      # rclone RD mount
       - /mnt/zurgmnt:/media/zurg:ro
-      # Jellyfin/Arr managed library root
       - /jellyfin:/jellyfin
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8096"]
@@ -82,6 +80,15 @@ services:
     volumes:
       - /root/zurg-jellyfin/prowlarr:/config
       - /jellyfin:/jellyfin
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:9696 || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   radarr:
     image: ghcr.io/hotio/radarr:release
@@ -98,6 +105,15 @@ services:
       - /jellyfin:/jellyfin
     depends_on:
       - prowlarr
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:7878 || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   radarr4k:
     image: ghcr.io/hotio/radarr:release
@@ -114,6 +130,15 @@ services:
       - /jellyfin:/jellyfin
     depends_on:
       - prowlarr
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:7878 || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   sonarr:
     image: ghcr.io/hotio/sonarr:release
@@ -130,6 +155,15 @@ services:
       - /jellyfin:/jellyfin
     depends_on:
       - prowlarr
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:8989 || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   sonarr4k:
     image: ghcr.io/hotio/sonarr:release
@@ -146,6 +180,15 @@ services:
       - /jellyfin:/jellyfin
     depends_on:
       - prowlarr
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:8989 || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   blackhole:
     image: ghcr.io/westsurname/scripts/blackhole:latest
@@ -157,7 +200,6 @@ services:
     environment:
       - BLACKHOLE_BASE_WATCH_PATH=/mnt/symlinks
     volumes:
-      # Allow access to rclone mount and symlinks
       - /mnt:/mnt:rshared
       - /mnt/symlinks/radarr:/mnt/symlinks/radarr
       - /mnt/symlinks/sonarr:/mnt/symlinks/sonarr
