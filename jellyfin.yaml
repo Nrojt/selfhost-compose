@@ -35,7 +35,7 @@ services:
     volumes:
       - jellyfin-config:/config
       - /mnt/zurgmnt:/media/zurg:ro
-      - /jellyfin:/jellyfin
+      - /jellyfin:/media/jellyfin
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8096"]
       interval: 30s
