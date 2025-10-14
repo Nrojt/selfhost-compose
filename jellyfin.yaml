@@ -9,7 +9,7 @@ services:
       - '9999:9999'
     volumes:
       # Use the config file located in /root/zurg-jellyfin/config.yml
-      - /root/zurg-jellyfin/config.yml:/app/config.yml:ro
+      - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
       - ./data:/app/data
     # health check which will always pass due to auth conflicts
     healthcheck:
@@ -34,7 +34,7 @@ services:
       - TZ=Europe/Madrid
     volumes:
       # Use same dir as zurg for config
-      - /root/zurg-jellyfin/rclone.conf:/config/rclone/rclone.conf:ro
+      - /root/zurg-jellyfin/rclone/rclone.conf:/config/rclone/rclone.conf:ro
       - /mnt/zurg:/mnt/zurg:rshared
     depends_on:
       - zurg
