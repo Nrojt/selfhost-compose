@@ -8,51 +8,13 @@ services:
     ports:
       - '9999:9999'
     volumes:
-      # Use the config file located in /root/zurg-jellyfin/config.yml
       - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
       - ./data:/app/data
-    # health check which will always pass due to auth conflicts
     healthcheck:
       test: ['CMD', 'true']
       interval: 30s
       timeout: 10s
       retries: 5
-
-  # rclone sidecar that mounts the zurg remote under /mnt/zurg
-  rclone-zurg:
-    image: rclone/rclone:latest
-    container_name: rclone-zurg
-    restart: unless-stopped
-    network_mode: host
-    devices:
-      - /dev/fuse
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - apparmor:unconfined
-    environment:
-      - TZ=Europe/Madrid
-    volumes:
-      # mount only the *file* — keep the dir writable for rclone
-      - type: bind
-        source: /root/zurg-jellyfin/rclone/rclone.conf
-        target: /config/rclone/rclone.conf
-        read_only: true
-        is_directory: false
-        content: ""
-      - /mnt/zurg:/mnt/zurg:rshared
-    depends_on:
-      - zurg
-    command: >-
-      mount zurg: /mnt/zurg
-      --config /config/rclone/rclone.conf
-      --dir-cache-time 10s
-      --poll-interval 0
-      --vfs-cache-mode full
-      --allow-other
-      --allow-non-empty
-      --uid 1000
-      --gid 1000
 
   jellyfin:
     image: jellyfin/jellyfin:latest
@@ -66,10 +28,9 @@ services:
       - '8096:8096'
     depends_on:
       - zurg
-      - rclone-zurg
     volumes:
       - jellyfin-config:/config
-      - /mnt/zurg:/media/zurg:ro
+      - zurgmnt:/media/zurg:ro
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8096']
       interval: 30s
@@ -91,7 +52,10 @@ services:
     volumes:
       - /root/zurg-jellyfin/jellyseerr/config:/app/config
     healthcheck:
-      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://127.0.0.1:5055/api/v1/status || exit 1']
+      test: [
+        'CMD-SHELL',
+        'wget --no-verbose --tries=1 --spider http://127.0.0.1:5055/api/v1/status || exit 1'
+      ]
       start_period: 20s
       interval: 15s
       timeout: 5s
@@ -99,3 +63,7 @@ services:
 
 volumes:
   jellyfin-config:
+  zurgmnt:
+    external: true
+    name: zurgmnt
+    driver: rclone
