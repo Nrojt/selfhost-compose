@@ -30,7 +30,7 @@ services:
       - zurg
     volumes:
       - jellyfin-config:/config
-      - zurgmnt:/media/zurg:ro
+      - /mnt/zurgmnt:/media/zurg:ro
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8096']
       interval: 30s
@@ -64,6 +64,3 @@ services:
 
 volumes:
   jellyfin-config:
-  zurgmnt:
-    external: true
-    name: zurgmnt
