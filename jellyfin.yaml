@@ -33,8 +33,11 @@ services:
     environment:
       - TZ=Europe/Madrid
     volumes:
-      # Use same dir as zurg for config
-      - /root/zurg-jellyfin/rclone/rclone.conf:/config/rclone/rclone.conf:ro
+      # mount only the *file* — keep the dir writable for rclone
+      - type: bind
+        source: /root/zurg-jellyfin/rclone/rclone.conf
+        target: /config/rclone/rclone.conf
+        read_only: true
       - /mnt/zurg:/mnt/zurg:rshared
     depends_on:
       - zurg
