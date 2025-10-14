@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   zurg:
@@ -6,12 +6,12 @@ services:
     container_name: zurg
     restart: unless-stopped
     ports:
-      - '9999:9999'
+      - "9999:9999"
     volumes:
       - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
-      - ./data:/app/data
+      - /root/zurg-jellyfin/zurg/data:/app/data
     healthcheck:
-      test: ['CMD', 'true']
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9999/dav/version.txt >/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -25,14 +25,15 @@ services:
       - PGID=1000
       - TZ=Europe/Madrid
     ports:
-      - '8096:8096'
+      - "8096:8096"
     depends_on:
       - zurg
     volumes:
       - jellyfin-config:/config
+      # rclone host mount (systemd) -> inside container
       - /mnt/zurgmnt:/media/zurg:ro
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8096']
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8096"]
       interval: 30s
       timeout: 10s
       retries: 15
@@ -46,7 +47,7 @@ services:
       - TZ=Europe/Madrid
       - PORT=5055
     ports:
-      - '5055:5055'
+      - "5055:5055"
     depends_on:
       - jellyfin
     volumes:
@@ -54,8 +55,8 @@ services:
     healthcheck:
       test:
         [
-          'CMD-SHELL',
-          'wget --no-verbose --tries=1 --spider http://127.0.0.1:5055/api/v1/status || exit 1'
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://127.0.0.1:5055/api/v1/status || exit 1"
         ]
       start_period: 20s
       interval: 15s
