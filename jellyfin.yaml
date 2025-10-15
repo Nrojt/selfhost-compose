@@ -1,6 +1,6 @@
-# ------------------------------------------------------------------
-#  ZURG
-# ------------------------------------------------------------------
+version: "3.9"
+
+services:
   zurg:
     image: ghcr.io/debridmediamanager/zurg:latest
     container_name: zurg
@@ -8,13 +8,9 @@
     ports:
       - "9999:9999"
     volumes:
-      # config lives next to the other folders
       - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
       - /root/zurg-jellyfin/zurg/data:/app/data
 
-# ------------------------------------------------------------------
-#  JELLYFIN
-# ------------------------------------------------------------------
   jellyfin:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
@@ -24,13 +20,10 @@
     depends_on:
       - zurg
     volumes:
+      # *** bind-mounts only – Coolify-compatible ***
       - /root/zurg-jellyfin/jellyfin/config:/config
-      # Zurg mount (read-only)
-      - /root/zurg-jellyfin/zurg/mnt:/media/zurg:ro
+      - /mnt/zurgmnt:/media/zurg:ro
 
-# ------------------------------------------------------------------
-#  JELLYSEERR
-# ------------------------------------------------------------------
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
@@ -44,9 +37,9 @@
     volumes:
       - /root/zurg-jellyfin/jellyseerr/config:/app/config
 
-# ------------------------------------------------------------------
-#  SEERRBRIDGE  (replaces blackhole)
-# ------------------------------------------------------------------
+  # -------------------------------------------------
+  #  SEERRBRIDGE (replaces blackhole)
+  # -------------------------------------------------
   seerrbridge:
     image: ghcr.io/woahai321/seerrbridge:latest
     container_name: seerrbridge
@@ -56,19 +49,18 @@
     ports:
       - "8777:8777"
     volumes:
-      # mount the env file read-only
+      # env file mounted read-only
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
       - /root/zurg-jellyfin/seerrbridge/logs:/app/logs
       - /root/zurg-jellyfin/seerrbridge/data:/app/data
     command: >
-      sh -c "
-        echo 'Loaded env from mounted file' &&
-        uvicorn main:app --host 0.0.0.0 --port 8777
-      "
+      sh -c "cat /app/.env > /dev/null &&
+             echo 'Starting SeerrBridge with mounted env' &&
+             uvicorn main:app --host 0.0.0.0 --port 8777"
 
-# ------------------------------------------------------------------
-#  BRIDGEBOARD (optional dashboard)
-# ------------------------------------------------------------------
+  # -------------------------------------------------
+  #  BRIDGEBOARD (optional dashboard)
+  # -------------------------------------------------
   bridgeboard:
     image: ghcr.io/woahai321/bridgeboard:latest
     container_name: bridgeboard
