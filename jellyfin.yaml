@@ -73,26 +73,5 @@ services:
       retries: 3
       start_period: 20s
 
-  bridgeboard:
-    image: ghcr.io/woahai321/bridgeboard:latest
-    container_name: bridgeboard
-    restart: unless-stopped
-    depends_on:
-      - seerrbridge
-    ports:
-      - '3777:3777'
-    environment:
-      - SEERRBRIDGE_URL=http://seerrbridge:8777
-      - SEERRBRIDGE_LOG_PATH=/logs/seerrbridge.log
-    volumes:
-      - /root/zurg-jellyfin/seerrbridge/logs:/logs
-      - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
-    healthcheck:
-      test: ['CMD', 'curl', '-fs', 'http://localhost:3777/']
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-
 volumes:
   jellyfin-config:
