@@ -60,6 +60,3 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
-    profiles:
-      - mediaflow-proxy
-      - all
