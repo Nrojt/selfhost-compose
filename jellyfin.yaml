@@ -1,27 +1,41 @@
 version: "3.9"
 
 services:
-  zurg:
-    image: ghcr.io/debridmediamanager/zurg:latest
-    container_name: zurg
-    restart: unless-stopped
-    ports:
-      - "9999:9999"
-    volumes:
-      - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
-      - /root/zurg-jellyfin/zurg/data:/app/data
+    zurg:
+      image: ghcr.io/debridmediamanager/zurg:latest
+      container_name: zurg
+      restart: unless-stopped
+      ports:
+        - '9999:9999'
+      volumes:
+        - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
+        - ./data:/app/data
+      healthcheck:
+        test: ['CMD', 'true']
+        interval: 30s
+        timeout: 10s
+        retries: 5
 
   jellyfin:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Madrid
     ports:
-      - "8096:8096"
+      - '8096:8096'
     depends_on:
       - zurg
     volumes:
       - jellyfin-config:/config
       - /mnt/zurgmnt:/media/zurg:ro
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8096']
+      interval: 30s
+      timeout: 10s
+      retries: 15
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
