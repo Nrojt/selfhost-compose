@@ -42,10 +42,9 @@ services:
     container_name: blackhole
     restart: unless-stopped
     user: "1000:1000"
-    env_file:
-      - ./blackhole/.env
     volumes:
       - /mnt:/mnt:rshared
+      - /root/zurg-jellyfin/blackhole/.env:/app/.env:ro
     depends_on:
       - zurg
 
@@ -54,10 +53,9 @@ services:
     container_name: blackhole4k
     restart: unless-stopped
     user: "1000:1000"
-    env_file:
-      - ./blackhole/.env.4k
     volumes:
       - /mnt:/mnt:rshared
+      - /root/zurg-jellyfin/blackhole/.env.4k:/app/.env:ro
     depends_on:
       - zurg
 
