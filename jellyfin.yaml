@@ -57,6 +57,12 @@ services:
       sh -c "cat /app/.env > /dev/null &&
              echo 'Starting SeerrBridge with mounted env' &&
              uvicorn main:app --host 0.0.0.0 --port 8777"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests,sys; r=requests.get('http://localhost:8777/status',timeout=3); sys.exit(0 if r.ok else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   # -------------------------------------------------
   #  BRIDGEBOARD (optional dashboard)
@@ -75,6 +81,12 @@ services:
     volumes:
       - /root/zurg-jellyfin/seerrbridge/logs:/logs
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3777/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
 volumes:
   jellyfin-config:
