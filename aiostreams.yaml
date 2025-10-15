@@ -50,7 +50,7 @@ services:
       - "8888:8888"
     restart: unless-stopped
     environment:
-        - STREMTHRU_PORT: "8888"
+        - STREMTHRU_PORT: 8888
     healthcheck:
         test: ["CMD", "wget", "-qO-", "http://localhost:8888/v0/health"]
         interval: 30s
