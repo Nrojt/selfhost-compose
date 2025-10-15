@@ -43,20 +43,16 @@ services:
       retries: 3
       start_period: 5s
 
-  mediaflow-proxy:
-    image: mhdzumair/mediaflow-proxy
-    container_name: mediaflow-proxy
-    restart: unless-stopped
-    expose:
-      - "8888"
+  stremthru-proxy:
+    image: ghcr.io/dydhzo/stremthru-proxy:latest
+    ports:
+      - "8888:8080"
     environment:
-        - DISABLE_HOME_PAGE: "true"
-        - ALL_PROXY: "true"
-        - DISABLE_DOCS: "true"
-        - DISABLE_SPEEDTEST: "true"
+      - STREMTHRU_BASE_URL=http://localhost:8888
+    restart: unless-stopped
     healthcheck:
-      test: python3 -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8888/health').read().decode())"
-      interval: 1m
-      timeout: 10s
-      retries: 5
-      start_period: 10s
+        test: ["CMD", "wget", "-qO-", "http://localhost:8080/v0/health"]
+        interval: 30s
+        timeout: 3s
+        retries: 3
+        start_period: 10s
