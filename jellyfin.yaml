@@ -37,27 +37,44 @@ services:
     volumes:
       - /root/zurg-jellyfin/jellyseerr/config:/app/config
 
-  blackhole:
-    image: ghcr.io/westsurname/scripts/blackhole:latest
-    container_name: blackhole
+  # -------------------------------------------------
+  #  SEERRBRIDGE (replaces blackhole)
+  # -------------------------------------------------
+  seerrbridge:
+    image: ghcr.io/woahai321/seerrbridge:latest
+    container_name: seerrbridge
     restart: unless-stopped
-    user: "1000:1000"
-    volumes:
-      - /mnt:/mnt:rshared
-      - /root/zurg-jellyfin/blackhole/.env.hd:/app/.env:ro
     depends_on:
-      - zurg
+      - jellyseerr
+    ports:
+      - "8777:8777"
+    volumes:
+      # env file mounted read-only
+      - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
+      - /root/zurg-jellyfin/seerrbridge/logs:/app/logs
+      - /root/zurg-jellyfin/seerrbridge/data:/app/data
+    command: >
+      sh -c "cat /app/.env > /dev/null &&
+             echo 'Starting SeerrBridge with mounted env' &&
+             uvicorn main:app --host 0.0.0.0 --port 8777"
 
-  blackhole4k:
-    image: ghcr.io/westsurname/scripts/blackhole:latest
-    container_name: blackhole4k
+  # -------------------------------------------------
+  #  BRIDGEBOARD (optional dashboard)
+  # -------------------------------------------------
+  bridgeboard:
+    image: ghcr.io/woahai321/bridgeboard:latest
+    container_name: bridgeboard
     restart: unless-stopped
-    user: "1000:1000"
-    volumes:
-      - /mnt:/mnt:rshared
-      - /root/zurg-jellyfin/blackhole/.env.4k:/app/.env:ro
     depends_on:
-      - zurg
+      - seerrbridge
+    ports:
+      - "3777:3777"
+    environment:
+      - SEERRBRIDGE_URL=http://seerrbridge:8777
+      - SEERRBRIDGE_LOG_PATH=/logs/seerrbridge.log
+    volumes:
+      - /root/zurg-jellyfin/seerrbridge/logs:/logs
+      - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
 
 volumes:
   jellyfin-config:
