@@ -226,7 +226,7 @@ services:
     image: saltydk/autoscan:latest
     container_name: autoscan
     restart: unless-stopped
-    user: "1000:1000"
+    user: "0:0"
     ports:
       - "3030:3030"
     volumes:
