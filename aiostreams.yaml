@@ -48,12 +48,12 @@ services:
     container_name: mediaflow-proxy
     restart: unless-stopped
     expose:
-      - 8888
+      - "8888"
     environment:
-        - DISABLE_HOME_PAGE: true
-        - ALL_PROXY: true
-        - DISABLE_DOCS: true
-        - DISABLE_SPEEDTEST: true
+        - DISABLE_HOME_PAGE: "true"
+        - ALL_PROXY: "true"
+        - DISABLE_DOCS: "true"
+        - DISABLE_SPEEDTEST: "true"
     healthcheck:
       test: python3 -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8888/health').read().decode())"
       interval: 1m
