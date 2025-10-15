@@ -44,7 +44,7 @@ services:
     user: "1000:1000"
     volumes:
       - /mnt:/mnt:rshared
-      - /root/zurg-jellyfin/blackhole/.env:/app/.env:ro
+      - /root/zurg-jellyfin/blackhole/.env.hd:/app/.env:ro
     depends_on:
       - zurg
 
