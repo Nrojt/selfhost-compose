@@ -1,20 +1,20 @@
 version: "3.9"
 
 services:
-    zurg:
-      image: ghcr.io/debridmediamanager/zurg:latest
-      container_name: zurg
-      restart: unless-stopped
-      ports:
-        - '9999:9999'
-      volumes:
-        - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
-        - ./data:/app/data
-      healthcheck:
-        test: ['CMD', 'true']
-        interval: 30s
-        timeout: 10s
-        retries: 5
+  zurg:
+    image: ghcr.io/debridmediamanager/zurg:latest
+    container_name: zurg
+    restart: unless-stopped
+    ports:
+      - '9999:9999'
+    volumes:
+      - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
+      - ./data:/app/data
+    healthcheck:
+      test: ['CMD', 'true']
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   jellyfin:
     image: jellyfin/jellyfin:latest
@@ -46,7 +46,7 @@ services:
       - TZ=Europe/Madrid
       - PORT=5055
     ports:
-      - "5055:5055"
+      - '5055:5055'
     volumes:
       - /root/zurg-jellyfin/jellyseerr/config:/app/config
 
@@ -57,7 +57,7 @@ services:
     depends_on:
       - jellyseerr
     ports:
-      - "8777:8777"
+      - '8777:8777'
     volumes:
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
       - /root/zurg-jellyfin/seerrbridge/logs:/app/logs
@@ -67,7 +67,7 @@ services:
              echo 'Starting SeerrBridge with mounted env' &&
              uvicorn main:app --host 0.0.0.0 --port 8777"
     healthcheck:
-      test: ["CMD", "curl", "-fs", "http://localhost:8777/status"]
+      test: ['CMD', 'curl', '-fs', 'http://localhost:8777/status']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -80,7 +80,7 @@ services:
     depends_on:
       - seerrbridge
     ports:
-      - "3777:3777"
+      - '3777:3777'
     environment:
       - SEERRBRIDGE_URL=http://seerrbridge:8777
       - SEERRBRIDGE_LOG_PATH=/logs/seerrbridge.log
@@ -88,7 +88,7 @@ services:
       - /root/zurg-jellyfin/seerrbridge/logs:/logs
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
     healthcheck:
-      test: ["CMD", "curl", "-fs", "http://localhost:3777/"]
+      test: ['CMD', 'curl', '-fs', 'http://localhost:3777/']
       interval: 30s
       timeout: 5s
       retries: 3
