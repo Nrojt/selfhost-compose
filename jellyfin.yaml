@@ -21,7 +21,7 @@ services:
       - zurg
     volumes:
       - jellyfin-config:/config
-      # Zurg mount
+      # Zurg mount (read-only)
       - /mnt/zurgmnt:/media/zurg:ro
 
   jellyseerr:
@@ -50,3 +50,22 @@ services:
       - /mnt:/mnt:rshared
     depends_on:
       - zurg
+
+  blackhole4k:
+    image: ghcr.io/westsurname/scripts/blackhole:latest
+    container_name: blackhole4k
+    restart: unless-stopped
+    user: "1000:1000"
+    env_file:
+      - /root/zurg-jellyfin/blackhole/.env.4k
+    environment:
+      - BLACKHOLE_BASE_WATCH_PATH=/mnt/symlinks
+      - RADARR_HOST=http://radarr4k:7878
+      - SONARR_HOST=http://sonarr4k:8989
+    volumes:
+      - /mnt:/mnt:rshared
+    depends_on:
+      - zurg
+
+volumes:
+  jellyfin-config:
