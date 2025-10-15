@@ -45,6 +45,7 @@ services:
 
   stremthru-proxy:
     image: ghcr.io/dydhzo/stremthru-proxy:latest
+    container_name: stremthru-proxy
     ports:
       - "8888:8080"
     environment:
