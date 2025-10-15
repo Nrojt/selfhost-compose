@@ -10,37 +10,19 @@ services:
     volumes:
       - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
       - /root/zurg-jellyfin/zurg/data:/app/data
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -sf http://127.0.0.1:9999/dav/version.txt >/dev/null || exit 1"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   jellyfin:
     image: jellyfin/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
     ports:
       - "8096:8096"
     depends_on:
       - zurg
     volumes:
       - jellyfin-config:/config
+      # Zurg mount
       - /mnt/zurgmnt:/media/zurg:ro
-      - /jellyfin:/media/jellyfin
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8096"]
-      interval: 30s
-      timeout: 10s
-      retries: 15
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
@@ -52,143 +34,8 @@ services:
       - PORT=5055
     ports:
       - "5055:5055"
-    depends_on:
-      - jellyfin
     volumes:
       - /root/zurg-jellyfin/jellyseerr/config:/app/config
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "wget --no-verbose --tries=1 --spider http://127.0.0.1:5055/api/v1/status || exit 1"
-        ]
-      start_period: 20s
-      interval: 15s
-      timeout: 5s
-      retries: 5
-
-  prowlarr:
-    image: ghcr.io/hotio/prowlarr:release
-    container_name: prowlarr
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
-    ports:
-      - "9696:9696"
-    volumes:
-      - /root/zurg-jellyfin/prowlarr:/config
-      - /jellyfin:/jellyfin
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -sf http://127.0.0.1:9696 || exit 1"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  radarr:
-    image: ghcr.io/hotio/radarr:release
-    container_name: radarr
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
-    ports:
-      - "7878:7878"
-    volumes:
-      - /root/zurg-jellyfin/radarr:/config
-      - /jellyfin:/jellyfin
-    depends_on:
-      - prowlarr
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -sf http://127.0.0.1:7878 || exit 1"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  radarr4k:
-    image: ghcr.io/hotio/radarr:release
-    container_name: radarr4k
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
-    ports:
-      - "7879:7878"
-    volumes:
-      - /root/zurg-jellyfin/radarr4k:/config
-      - /jellyfin:/jellyfin
-    depends_on:
-      - prowlarr
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -sf http://127.0.0.1:7878 || exit 1"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  sonarr:
-    image: ghcr.io/hotio/sonarr:release
-    container_name: sonarr
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
-    ports:
-      - "8989:8989"
-    volumes:
-      - /root/zurg-jellyfin/sonarr:/config
-      - /jellyfin:/jellyfin
-    depends_on:
-      - prowlarr
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -sf http://127.0.0.1:8989 || exit 1"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  sonarr4k:
-    image: ghcr.io/hotio/sonarr:release
-    container_name: sonarr4k
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
-    ports:
-      - "8990:8989"
-    volumes:
-      - /root/zurg-jellyfin/sonarr4k:/config
-      - /jellyfin:/jellyfin
-    depends_on:
-      - prowlarr
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -sf http://127.0.0.1:8989 || exit 1"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   blackhole:
     image: ghcr.io/westsurname/scripts/blackhole:latest
@@ -202,39 +49,4 @@ services:
     volumes:
       - /mnt:/mnt:rshared
     depends_on:
-      - radarr
-      - sonarr
-
-  blackhole4k:
-    image: ghcr.io/westsurname/scripts/blackhole:latest
-    container_name: blackhole4k
-    restart: unless-stopped
-    user: "1000:1000"
-    env_file:
-      - /root/zurg-jellyfin/blackhole/.env.4k
-    environment:
-      - BLACKHOLE_BASE_WATCH_PATH=/mnt/symlinks
-      - RADARR_HOST=http://radarr4k:7878
-      - SONARR_HOST=http://sonarr4k:8989
-    volumes:
-      - /mnt:/mnt:rshared
-    depends_on:
-      - radarr4k
-      - sonarr4k
-
-  autoscan:
-    image: saltydk/autoscan:latest
-    container_name: autoscan
-    restart: unless-stopped
-    user: "0:0"
-    ports:
-      - "3030:3030"
-    volumes:
-      - /root/zurg-jellyfin/autoscan:/config
-      - /jellyfin:/jellyfin
-      - /mnt:/mnt
-    depends_on:
-      - jellyfin
-
-volumes:
-  jellyfin-config:
+      - zurg
