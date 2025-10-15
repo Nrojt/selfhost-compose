@@ -48,8 +48,6 @@ services:
     container_name: stremthru-proxy
     ports:
       - "8888:8080"
-    environment:
-      - STREMTHRU_BASE_URL=http://localhost:8888
     restart: unless-stopped
     healthcheck:
         test: ["CMD", "wget", "-qO-", "http://localhost:8080/v0/health"]
