@@ -4,7 +4,7 @@ services:
     container_name: aiostreams
     restart: unless-stopped
     pull_policy: always
-    # ports:
+    ports:
       - "3000:3000"
     volumes:
       - ./data:/app/data
