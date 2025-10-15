@@ -21,7 +21,6 @@ services:
       - zurg
     volumes:
       - jellyfin-config:/config
-      # Zurg mount (read-only)
       - /mnt/zurgmnt:/media/zurg:ro
 
   jellyseerr:
@@ -37,9 +36,6 @@ services:
     volumes:
       - /root/zurg-jellyfin/jellyseerr/config:/app/config
 
-  # -------------------------------------------------
-  #  SEERRBRIDGE (replaces blackhole)
-  # -------------------------------------------------
   seerrbridge:
     image: ghcr.io/woahai321/seerrbridge:latest
     container_name: seerrbridge
@@ -49,7 +45,6 @@ services:
     ports:
       - "8777:8777"
     volumes:
-      # env file mounted read-only
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
       - /root/zurg-jellyfin/seerrbridge/logs:/app/logs
       - /root/zurg-jellyfin/seerrbridge/data:/app/data
@@ -57,10 +52,13 @@ services:
       sh -c "cat /app/.env > /dev/null &&
              echo 'Starting SeerrBridge with mounted env' &&
              uvicorn main:app --host 0.0.0.0 --port 8777"
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8777/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
-  # -------------------------------------------------
-  #  BRIDGEBOARD (optional dashboard)
-  # -------------------------------------------------
   bridgeboard:
     image: ghcr.io/woahai321/bridgeboard:latest
     container_name: bridgeboard
@@ -75,6 +73,12 @@ services:
     volumes:
       - /root/zurg-jellyfin/seerrbridge/logs:/logs
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:3777/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
 volumes:
   jellyfin-config:
