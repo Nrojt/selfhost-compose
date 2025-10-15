@@ -20,8 +20,8 @@ services:
     depends_on:
       - zurg
     volumes:
-      # *** bind-mounts only – Coolify-compatible ***
-      - /root/zurg-jellyfin/jellyfin/config:/config
+      - jellyfin-config:/config
+      # Zurg mount (read-only)
       - /mnt/zurgmnt:/media/zurg:ro
 
   jellyseerr:
@@ -75,3 +75,6 @@ services:
     volumes:
       - /root/zurg-jellyfin/seerrbridge/logs:/logs
       - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
+
+volumes:
+  jellyfin-config:
