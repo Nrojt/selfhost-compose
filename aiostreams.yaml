@@ -1,63 +1,82 @@
 services:
-    aiostreams:
-        image: ghcr.io/viren070/aiostreams:latest
-        container_name: aiostreams
-        restart: unless-stopped
-        pull_policy: always
-        ports:
-            - "3000:3000"
-        volumes:
-            - ./data:/app/data
-        healthcheck:
-            test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
-            interval: 1m
-            timeout: 10s
-            retries: 5
-            start_period: 10s
+  aiostreams:
+    image: ghcr.io/viren070/aiostreams:latest
+    container_name: aiostreams
+    restart: unless-stopped
+    pull_policy: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
-    warp:
-        image: caomingjun/warp:latest
-        container_name: warp
-        restart: unless-stopped
-        device_cgroup_rules:
-            - "c 10:200 rwm"
-        expose:
-            - "1080"
-        environment:
-            - WARP_SLEEP=5
-        cap_add:
-            - NET_ADMIN
-        sysctls:
-            - net.ipv6.conf.all.disable_ipv6=0
-            - net.ipv4.conf.all.src_valid_mark=1
-        volumes:
-            - ./warp:/var/lib/cloudflare-warp
-        healthcheck:
-            test:
-                [
-                    "CMD-SHELL",
-                    "curl -x 'socks5h://127.0.0.1:1080' -fsSL 'https://www.cloudflare.com/cdn-cgi/trace' | grep -qE 'warp=(plus|on)' || exit 1",
-                ]
-            interval: 1m
-            timeout: 5s
-            retries: 3
-            start_period: 5s
+  warp:
+    image: caomingjun/warp:latest
+    container_name: warp
+    restart: unless-stopped
+    device_cgroup_rules:
+      - "c 10:200 rwm"
+    expose:
+      - "1080"
+    environment:
+      - WARP_SLEEP=5
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./warp:/var/lib/cloudflare-warp
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -x 'socks5h://127.0.0.1:1080' -fsSL 'https://www.cloudflare.com/cdn-cgi/trace' | grep -qE 'warp=(plus|on)' || exit 1",
+        ]
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
-    nzbhydra2:
-        image: lscr.io/linuxserver/nzbhydra2:latest
-        container_name: nzbhydra2
-        restart: unless-stopped
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=Europe/Amsterdam
-        volumes:
-            - ./data/nzbhydra2:/config
-        ports:
-            - "5076:5076"
-        healthcheck:
-            test: ["CMD", "exit", "0"]
-            interval: 1m
-            timeout: 10s
-            retries: 3
-            start_period: 30s
+  nzbhydra2:
+    image: lscr.io/linuxserver/nzbhydra2:latest
+    container_name: nzbhydra2
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - ./data/nzbhydra2:/config
+    ports:
+      - "5076:5076"
+    healthcheck:
+      test: ["CMD", "exit", "0"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /path/to/prowlarr/data:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9696"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
