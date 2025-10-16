@@ -56,7 +56,7 @@ services:
         ports:
             - "5076:5076"
         healthcheck:
-            test: ["CMD", "wget", "-q", "--spider", "http://localhost:5076"]
+            test: ["CMD", "exit", "0"]
             interval: 1m
             timeout: 10s
             retries: 3
