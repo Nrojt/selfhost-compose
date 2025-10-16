@@ -51,3 +51,20 @@ services:
       interval: 2s
       timeout: 10s
       retries: 15
+
+  byparr:
+    image: ghcr.io/thephaseless/byparr:latest
+    container_name: byparr
+    restart: unless-stopped
+    pull_policy: always
+    ports:
+      - "8196:8196"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8196
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8196/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
