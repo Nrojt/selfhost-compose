@@ -71,7 +71,7 @@ services:
     volumes:
       - prowlarr-config:/config
     ports:
-      - "9696:9696"
+      - "9697:9696"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
       interval: 2s
