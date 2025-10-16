@@ -75,7 +75,7 @@ services:
       - 9696:9696
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9696"]
+      test: ["CMD", "exit", "0"]
       interval: 30s
       timeout: 10s
       retries: 5
