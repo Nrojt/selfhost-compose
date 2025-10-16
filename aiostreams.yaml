@@ -34,10 +34,8 @@ services:
       - ./warp:/var/lib/cloudflare-warp
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "curl -x 'socks5h://127.0.0.1:1080' -fsSL 'https://www.cloudflare.com/cdn-cgi/trace' | grep -qE 'warp=(plus|on)' || exit 1",
-        ]
+        - CMD-SHELL
+        - curl -x 'socks5h://127.0.0.1:1080' -fsSL 'https://www.cloudflare.com/cdn-cgi/trace' | grep -qE 'warp=(plus|on)' || exit 1
       interval: 1m
       timeout: 5s
       retries: 3
@@ -63,21 +61,19 @@ services:
       start_period: 30s
 
   prowlarr:
-    image: "lscr.io/linuxserver/prowlarr:latest"
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
     environment:
-      - SERVICE_URL_PROWLARR_9696
-      - _APP_URL=$SERVICE_URL_PROWLARR
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
     volumes:
-      - "prowlarr-config:/config"
+      - prowlarr-config:/config
+    ports:
+      - "9696:9696"
     healthcheck:
-      test:
-        - CMD
-        - curl
-        - "-f"
-        - "http://localhost:9696/ping"
+      test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
       interval: 2s
       timeout: 10s
       retries: 15
