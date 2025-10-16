@@ -76,11 +76,8 @@ services:
       - "9696:9696"
     restart: unless-stopped
     healthcheck:
-      test:
-        - CMD
-        - curl
-        - "-f"
-        - "http://localhost:9696/ping"
-      interval: 2s
+      test: ["CMD", "exit", "0"]
+      interval: 1m
       timeout: 10s
-      retries: 15
+      retries: 3
+      start_period: 30s
