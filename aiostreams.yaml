@@ -66,17 +66,21 @@ services:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     environment:
+      - SERVICE_URL_PROWLARR_9696
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
     volumes:
-      - /path/to/prowlarr/data:/config
+      - "prowlarr-config:/config"
     ports:
-      - 9696:9696
+      - "9696:9696"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "exit", "0"]
-      interval: 30s
+      test:
+        - CMD
+        - curl
+        - "-f"
+        - "http://localhost:9696/ping"
+      interval: 2s
       timeout: 10s
-      retries: 5
-      start_period: 30s
+      retries: 15
