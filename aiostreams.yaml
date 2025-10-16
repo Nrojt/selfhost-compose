@@ -69,7 +69,7 @@ services:
       - _APP_URL=$SERVICE_URL_PROWLARR
       - PUID=1000
       - PGID=1000
-      - "TZ=$Europe/Amsterdam"
+      - TZ=Europe/Amsterdam
     volumes:
       - "prowlarr-config:/config"
     healthcheck:
