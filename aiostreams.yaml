@@ -55,27 +55,6 @@ services:
             timeout: 10s
             retries: 15
 
-    byparr:
-        image: ghcr.io/thephaseless/byparr:latest
-        container_name: byparr
-        restart: unless-stopped
-        pull_policy: always
-        ports:
-            - "8196:8196"
-        environment:
-            - HOST=0.0.0.0
-            - PORT=8196
-            - LOG_LEVEL=INFO
-        sysctls:
-            - net.ipv6.conf.all.disable_ipv6=1
-            - net.ipv6.conf.default.disable_ipv6=1
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:8196/docs"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 10s
-
     flaresolverr:
         image: ghcr.io/flaresolverr/flaresolverr:latest
         container_name: flaresolverr
@@ -85,8 +64,6 @@ services:
             - LOG_HTML=false
             - CAPTCHA_SOLVER=none
             - TZ=Europe/Amsterdam
-        ports:
-            - "8192:8191"
         sysctls:
             - net.ipv6.conf.all.disable_ipv6=1
             - net.ipv6.conf.default.disable_ipv6=1
