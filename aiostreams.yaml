@@ -61,9 +61,10 @@ services:
         restart: unless-stopped
         pull_policy: always
         ports:
-            - "8196:8191"
+            - "8196:8196"
         environment:
             - HOST=0.0.0.0
+            - PORT=8196
             - LOG_LEVEL=INFO
         sysctls:
             - net.ipv6.conf.all.disable_ipv6=1
@@ -85,7 +86,7 @@ services:
             - CAPTCHA_SOLVER=none
             - TZ=Europe/Amsterdam
         ports:
-            - "8191:8191"
+            - "8192:8191"
         sysctls:
             - net.ipv6.conf.all.disable_ipv6=1
             - net.ipv6.conf.default.disable_ipv6=1
