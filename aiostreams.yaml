@@ -58,10 +58,9 @@ services:
         restart: unless-stopped
         pull_policy: always
         ports:
-            - "8196:8196"
+            - "8196:8191"
         environment:
             - HOST=0.0.0.0
-            - PORT=8196
             - LOG_LEVEL=INFO
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8196/docs"]
