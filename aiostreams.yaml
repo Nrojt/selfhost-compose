@@ -1,53 +1,89 @@
 services:
-  aiostreams:
-    image: ghcr.io/viren070/aiostreams:latest
-    container_name: aiostreams
-    restart: unless-stopped
-    pull_policy: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./data:/app/data
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
-      interval: 1m
-      timeout: 10s
-      retries: 5
-      start_period: 10s
+    aiostreams:
+        image: ghcr.io/viren070/aiostreams:latest
+        container_name: aiostreams
+        restart: unless-stopped
+        pull_policy: always
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./data:/app/data
+        healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/v1/status"]
+            interval: 1m
+            timeout: 10s
+            retries: 5
+            start_period: 10s
 
-  nzbhydra2:
-    image: lscr.io/linuxserver/nzbhydra2:latest
-    container_name: nzbhydra2
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-    volumes:
-      - ./data/nzbhydra2:/config
-    ports:
-      - "5076:5076"
-    healthcheck:
-      test: ["CMD", "exit", "0"]
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+    nzbhydra2:
+        image: lscr.io/linuxserver/nzbhydra2:latest
+        container_name: nzbhydra2
+        restart: unless-stopped
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - ./data/nzbhydra2:/config
+        ports:
+            - "5076:5076"
+        healthcheck:
+            test: ["CMD", "exit", "0"]
+            interval: 1m
+            timeout: 10s
+            retries: 3
+            start_period: 30s
 
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Amsterdam
-    volumes:
-      - prowlarr-config:/config
-    ports:
-      - "9696:9696"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
-      interval: 2s
-      timeout: 10s
-      retries: 15
+    prowlarr:
+        image: lscr.io/linuxserver/prowlarr:latest
+        container_name: prowlarr
+        restart: unless-stopped
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Europe/Amsterdam
+        volumes:
+            - prowlarr-config:/config
+        ports:
+            - "9696:9696"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
+            interval: 2s
+            timeout: 10s
+            retries: 15
+
+    byparr:
+        image: ghcr.io/thephaseless/byparr:latest
+        container_name: byparr
+        restart: unless-stopped
+        pull_policy: always
+        ports:
+            - "8196:8196"
+        environment:
+            - HOST=0.0.0.0
+            - PORT=8196
+            - LOG_LEVEL=INFO
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8196/docs"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 10s
+
+    flaresolverr:
+        image: ghcr.io/flaresolverr/flaresolverr:latest
+        container_name: flaresolverr
+        restart: unless-stopped
+        environment:
+            - LOG_LEVEL=info
+            - LOG_HTML=false
+            - CAPTCHA_SOLVER=none
+            - TZ=Europe/Amsterdam
+        ports:
+            - "8191:8191"
+        healthcheck:
+            test: ["CMD-SHELL", "curl -f http://localhost:8191/v1 || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 10s
