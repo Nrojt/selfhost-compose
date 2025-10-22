@@ -56,7 +56,7 @@ services:
             retries: 15
 
     flaresolverr:
-        image: ghcr.io/flaresolverr/flaresolverr:latest
+        image: 21hsmw/flaresolverr:nodriver
         container_name: flaresolverr
         restart: unless-stopped
         environment:
