@@ -1,0 +1,18 @@
+services:
+  nzbhydra2:
+    image: lscr.io/linuxserver/nzbhydra2:latest
+    container_name: nzbhydra2
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - SERVICE_FQDN_NZBHYDRA_5076
+    volumes:
+      - ./data/nzbhydra2:/config
+    healthcheck:
+      test: ["CMD", "exit", "0"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
