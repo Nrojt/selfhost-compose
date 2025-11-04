@@ -1,0 +1,57 @@
+services:
+    mc:
+        image: itzg/minecraft-server
+        ports:
+            - "${PORT}:25565/tcp" # Java (TCP)
+            - "${BEDROCK_PORT:-19132}:19132/udp" # Bedrock (UDP via Geyser)
+        environment:
+            - EULA=true
+            - "VERSION=${MINECRAFT_VERSION:-1.21.8}"
+            - "TYPE=${MINECRAFT_TYPE:-PAPER}"
+            - "SERVER_NAME=${MINECRAFT_SERVER_NAME:-Minecraft Server}"
+            - "MOTD=${MINECRAFT_MOTD:-Minecraft Server powered by §aCoolify§r}"
+            - "DIFFICULTY=${MINECRAFT_DIFFICULTY:-normal}"
+            - "MAX_PLAYERS=${MINECRAFT_MAX_PLAYERS:-10}"
+            - "MAX_WORLD_SIZE=${MINECRAFT_MAX_WORLD_SIZE:-10000}"
+            - "VIEW_DISTANCE=${MINECRAFT_VIEW_DISTANCE:-10}"
+            - "MAX_BUILD_HEIGHT=${MINECRAFT_MAX_BUILD_HEIGHT:-256}"
+            - "ALLOW_NETHER=${MINECRAFT_ALLOW_NETHER:-true}"
+            - "GENERATE_STRUCTURES=${MINECRAFT_GENERATE_STRUCTURES:-true}"
+            - "PVP=${MINECRAFT_PVP:-true}"
+            - "MODE=${MINECRAFT_GAME_MODE:-survival}"
+            - "INIT_MEMORY=${MINECRAFT_INIT_MEMORY:-512M}"
+            - "MAX_MEMORY=${MINECRAFT_MAX_MEMORY:-2G}"
+            - "RCON_PASSWORD=${SERVICE_PASSWORD_RCON}"
+            - "PORT=${PORT:-25565}"
+
+            # --- Operators & Whitelist ---
+            - EXISTING_OPS_FILE=SYNC_FILE_MERGE_LIST
+            - OPS=${MINECRAFT_OPS}
+            - EXISTING_WHITELIST_FILE=SYNC_FILE_MERGE_LIST
+            - WHITELIST=${MINECRAFT_WHITELIST}
+
+            # --- Plugins ---
+            - |
+                PLUGINS=https://hangarcdn.papermc.io/plugins/ViaVersion/ViaVersion/versions/${VIAVERSION_VERSION:-5.5.1}/PAPER/ViaVersion-${VIAVERSION_VERSION:-5.5.1}.jar
+                https://download.geysermc.org/v2/projects/geyser/versions/${GEYSER_VERSION:-latest}/builds/${GEYSER_BUILD:-latest}/downloads/spigot
+                https://download.geysermc.org/v2/projects/floodgate/versions/${FLOODGATE_VERSION:-latest}/builds/${FLOODGATE_BUILD:-latest}/downloads/spigot
+                https://github.com/MagicCheese1/Damage-Indicator/releases/download/v${DAMAGE_INDICATOR_VERSION:-2.2.3}/DamageIndicator.jar
+                https://github.com/dmulloy2/ProtocolLib/releases/download/${PROTOCOLLIB_VERSION:-5.4.0}/ProtocolLib.jar
+                https://hangarcdn.papermc.io/plugins/Aznos/Superenchants/versions/${SUPERENCHANTS_VERSION:-3.2.0.1}/PAPER/SuperEnchants-${SUPERENCHANTS_VERSION:-3.2.0.1}-all.jar
+                https://cdn.modrinth.com/data/S75Ueiq9/versions/${CUSTOMANVIL_VERSION:-tuuwwQ2L}/CustomAnvil-${CUSTOMANVIL_MC_VERSION:-1.15.0}.jar
+
+        volumes:
+            - "./minecraft-data:/data"
+
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "/usr/local/bin/mc-monitor",
+                    "status",
+                    "--host",
+                    "localhost",
+                ]
+            interval: 10s
+            timeout: 10s
+            retries: 5
