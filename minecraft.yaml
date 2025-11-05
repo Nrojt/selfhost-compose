@@ -4,9 +4,10 @@ services:
     ports:
       - "${PORT}:25565/tcp" # Java (TCP)
       - "${BEDROCK_PORT:-19132}:19132/udp" # Bedrock (UDP via Geyser)
+    user: "1000:1000"
     environment:
       - EULA=true
-      - "VERSION=${MINECRAFT_VERSION:-1.21.10}"
+      - "VERSION=${MINECRAFT_VERSION:-1.21.8}"
       - "TYPE=${MINECRAFT_TYPE:-PURPUR}"
       - "SERVER_NAME=${MINECRAFT_SERVER_NAME:-Minecraft Server}"
       - "MOTD=${MINECRAFT_MOTD:-Minecraft Server powered by §aCoolify§r}"
@@ -41,7 +42,7 @@ services:
         https://cdn.modrinth.com/data/S75Ueiq9/versions/${CUSTOMANVIL_VERSION:-tuuwwQ2L}/CustomAnvil-${CUSTOMANVIL_MC_VERSION:-1.15.0}.jar
         https://cdn.modrinth.com/data/1u6JkXh5/versions/${WORLDEDIT_VERSION:-3ISh7ADm}/worldedit-bukkit-${WORLDEDIT_JAR_VERSION:-7.3.17}.jar
         https://cdn.modrinth.com/data/KYXglN2M/versions/${BETTERSTRUCTURES_VERSION:-o0CUM3Tr}/BetterStructures.jar
-        https://cdn.modrinth.com/data/FIlZB9L0/versions/${TERRA_VERSION:-Ufl71nST}/Terra-bukkit-${TERRA_JAR_VERSION:-6.6.6-BETA%2B451683aff}-shaded.jar
+        https://cdn.modrinth.com/data/8JQgYY94/versions/Z8za0RZ2/TerraformGenerator-24.1.0.jar
         https://cdn.modrinth.com/data/OhduvhIc/versions/${VEINMINER_VERSION:-qO1MV511}/veinminer-paper-${VEINMINER_PAPER_VERSION:-2.5.1}.jar
         https://cdn.modrinth.com/data/4sP0LXxp/versions/${VEINMINER_ENCHANT_VERSION:-h5oKcjvq}/veinminer-enchant-${VEINMINER_ENCHANT_JAR_VERSION:-2.3.0}.jar
         https://cdn.modrinth.com/data/Hn8OHmqL/versions/${PURPUREXTRAS_VERSION:-W4NNLVeB}/PurpurExtras-${PURPUREXTRAS_JAR_VERSION:-1.36.3}.jar
