@@ -1,77 +1,148 @@
-version: "3.9"
-
 services:
-  zurg:
-    image: ghcr.io/debridmediamanager/zurg:latest
-    container_name: zurg
-    restart: unless-stopped
-    ports:
-      - '9999:9999'
-    volumes:
-      - /root/zurg-jellyfin/zurg/config.yml:/app/config.yml:ro
-      - ./data:/app/data
-    healthcheck:
-      test: ['CMD', 'true']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
   jellyfin:
-    image: jellyfin/jellyfin:latest
+    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
-    restart: unless-stopped
+    hostname: jellyfin
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Madrid
-    ports:
-      - '8096:8096'
-    depends_on:
-      - zurg
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+      - TZ=${TZ}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_URL}
     volumes:
-      - jellyfin-config:/config
-      - /mnt/zurgmnt:/media/zurg:ro
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8096']
-      interval: 30s
-      timeout: 10s
-      retries: 15
+      - jellyfin_config:/config
+      - ${MOVIES_SOURCE_PATH}:/data/movies
+      - ${TV_SHOWS_SOURCE_PATH}:/data/tvshows
+    ports:
+      - 8096:8096
+      - 7359:7359/udp
+      - 1900:1900/udp
+    restart: unless-stopped
+    networks:
+      - default
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
-    restart: unless-stopped
+    hostname: jellyseerr
     environment:
-      - LOG_LEVEL=info
-      - TZ=Europe/Madrid
-      - PORT=5055
+      - LOG_LEVEL=debug
+      - TZ=${TZ}
     ports:
-      - '5055:5055'
+      - 5055:5055
     volumes:
-      - /root/zurg-jellyfin/jellyseerr/config:/app/config
-
-  seerrbridge:
-    image: ghcr.io/woahai321/seerrbridge:latest
-    container_name: seerrbridge
+      - jellyseerr_config:/app/config
     restart: unless-stopped
-    depends_on:
-      - jellyseerr
-    ports:
-      - '8777:8777'
+    networks:
+      - default
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    environment:
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+      - TZ=${TZ}
     volumes:
-      - /root/zurg-jellyfin/seerrbridge/.env:/app/.env:ro
-      - /root/zurg-jellyfin/seerrbridge/logs:/app/logs
-      - /root/zurg-jellyfin/seerrbridge/data:/app/data
-    command: >
-      sh -c "cat /app/.env > /dev/null &&
-             echo 'Starting SeerrBridge with mounted env' &&
-             uvicorn main:app --host 0.0.0.0 --port 8777"
-    healthcheck:
-      test: ['CMD', 'curl', '-fs', 'http://localhost:8777/status']
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+      - radarr_config:/config
+      - ${DOWNLOADS_SOURCE_PATH}:/downloads
+      - ${MOVIES_SOURCE_PATH}:/movies
+    restart: unless-stopped
+    networks:
+      - default
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    environment:
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+      - TZ=${TZ}
+    volumes:
+      - sonarr_config:/config
+      - ${DOWNLOADS_SOURCE_PATH}:/downloads
+      - ${TV_SHOWS_SOURCE_PATH}:/tv
+    restart: unless-stopped
+    networks:
+      - default
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    environment:
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+      - TZ=${TZ}
+    volumes:
+      - prowlarr_config:/config
+    restart: unless-stopped
+    networks:
+      - default
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    hostname: qbittorrent
+    environment:
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - qbittorrent_config:/config
+      - ${DOWNLOADS_SOURCE_PATH}:/downloads
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+    networks:
+      - default
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    hostname: sabnzbd
+    environment:
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+      - TZ=${TZ}
+    volumes:
+      - sabnzbd_config:/config
+      - ${DOWNLOADS_SOURCE_PATH}:/downloads
+      - ${DOWNLOADS_SOURCE_PATH}/incomplete:/incomplete-downloads
+    restart: unless-stopped
+    networks:
+      - default
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    hostname: homepage
+    environment:
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+    ports:
+      - 3000:3000
+    volumes:
+      - ${HOMEPAGE_CONFIG_PATH}:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    networks:
+      - default
 
 volumes:
-  jellyfin-config:
+  jellyfin_config:
+  jellyseerr_config:
+  radarr_config:
+  sonarr_config:
+  prowlarr_config:
+  sabnzbd_config:
+  qbittorrent_config:
+
+networks:
+  default:
+    name: ${PROXY_NETWORK_NAME}
+    external: true
