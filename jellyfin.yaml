@@ -2,7 +2,6 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
-    hostname: jellyfin
     environment:
       - PUID=${PUID-1000}
       - PGID=${PGID-1000}
@@ -10,15 +9,13 @@ services:
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_URL}
     volumes:
       - jellyfin_config:/config
-      - ${MOVIES_SOURCE_PATH}:/data/movies
-      - ${TV_SHOWS_SOURCE_PATH}:/data/tvshows
+      - /mnt/media/movies:/data/movies
+      - /mnt/media/tv:/data/tvshows
     ports:
       - 8096:8096
       - 7359:7359/udp
       - 1900:1900/udp
     restart: unless-stopped
-    networks:
-      - default
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
@@ -30,8 +27,6 @@ services:
     volumes:
       - jellyseerr_config:/app/config
     restart: unless-stopped
-    networks:
-      - default
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -42,11 +37,9 @@ services:
       - TZ=${TZ}
     volumes:
       - radarr_config:/config
-      - ${DOWNLOADS_SOURCE_PATH}:/downloads
-      - ${MOVIES_SOURCE_PATH}:/movies
+      - /mnt/media/downloads:/downloads
+      - /mnt/media/movies:/movies
     restart: unless-stopped
-    networks:
-      - default
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -57,11 +50,9 @@ services:
       - TZ=${TZ}
     volumes:
       - sonarr_config:/config
-      - ${DOWNLOADS_SOURCE_PATH}:/downloads
-      - ${TV_SHOWS_SOURCE_PATH}:/tv
+      - /mnt/media/downloads:/downloads
+      - /mnt/media/tv:/tv
     restart: unless-stopped
-    networks:
-      - default
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -73,8 +64,6 @@ services:
     volumes:
       - prowlarr_config:/config
     restart: unless-stopped
-    networks:
-      - default
 
   rdtclient:
     image: rogerfar/rdtclient:latest
@@ -85,12 +74,10 @@ services:
       - TZ=${TZ}
     volumes:
       - rdtclient_data:/data/db
-      - ${DOWNLOADS_SOURCE_PATH}:/data/downloads
+      - /mnt/media/downloads:/data/downloads
     ports:
       - 6500:6500
     restart: unless-stopped
-    networks:
-      - default
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -102,12 +89,12 @@ services:
       - WEBUI_PORT=8080
     volumes:
       - qbittorrent_config:/config
-      - ${DOWNLOADS_SOURCE_PATH}:/downloads
+      - /mnt/media/downloads:/downloads
     ports:
-      - 8080:8080
+      - 8085:8080
+      - 6881:6881
+      - 6881:6881/udp
     restart: unless-stopped
-    networks:
-      - default
 
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
@@ -118,12 +105,10 @@ services:
       - TZ=${TZ}
     volumes:
       - sabnzbd_config:/config
-      - ${DOWNLOADS_SOURCE_PATH}:/downloads
+      - /mnt/media/downloads:/downloads
     ports:
       - 8081:8080
     restart: unless-stopped
-    networks:
-      - default
 
 volumes:
   jellyfin_config:
@@ -134,8 +119,3 @@ volumes:
   qbittorrent_config:
   sabnzbd_config:
   rdtclient_data:
-
-networks:
-  default:
-    name: ${PROXY_NETWORK_NAME}
-    external: true
