@@ -125,6 +125,31 @@ services:
       - 6767:6767
     restart: unless-stopped
 
+  maintainerr:
+    image: ghcr.io/maintainerr/maintainerr:latest
+    container_name: maintainerr
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - maintainerr_data:/opt/data
+    ports:
+      - 6246:6246
+    restart: unless-stopped
+
+  cleanuparr:
+    image: ghcr.io/cleanuparr/cleanuparr:latest
+    container_name: cleanuparr
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID-1000}
+      - PGID=${PGID-1000}
+    volumes:
+      - cleanuparr_config:/config
+      - /mnt/media/downloads:/downloads
+    ports:
+      - 11011:11011
+    restart: unless-stopped
+
 volumes:
   jellyfin_config: null
   radarr_config: null
@@ -133,3 +158,5 @@ volumes:
   sabnzbd_config: null
   rdtclient_data: null
   bazarr_config: null
+  maintainerr_data: null
+  cleanuparr_config: null
