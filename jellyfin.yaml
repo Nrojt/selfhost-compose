@@ -1,162 +1,212 @@
 services:
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
+    image: "jellyfin/jellyfin:latest"
     container_name: jellyfin
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
-      - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_URL}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
+      - "JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_URL}"
+    group_add:
+      - "44"
+      - "993"
     volumes:
-      - jellyfin_config:/config
-      - /mnt/media/movies:/data/movies
-      - /mnt/media/tv:/data/tvshows
-      - /mnt/ssd/transcode:/transcode
+      - "jellyfin_config:/config"
+      - "/mnt/media/movies:/data/movies"
+      - "/mnt/media/tv:/data/tvshows"
+      - "/mnt/ssd/transcode:/transcode"
     ports:
-      - 8096:8096
-      - 7359:7359/udp
-      - 1900:1900/udp
+      - "8096:8096"
+      - "7359:7359/udp"
+      - "1900:1900/udp"
     devices:
-      - /dev/dri:/dev/dri
+      - "/dev/dri:/dev/dri"
     healthcheck:
-      test: curl -f http://localhost:8096/health || exit 1
+      test: "curl -f http://localhost:8096/health || exit 1"
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
     restart: unless-stopped
-
   seerr:
-    image: ghcr.io/seerr-team/seerr:latest
+    image: "ghcr.io/seerr-team/seerr:latest"
     container_name: seerr
     environment:
-      - TZ=${TZ}
+      - "TZ=${TZ}"
     ports:
-      - 5055:5055
+      - "5055:5055"
     volumes:
-      - /mnt/media/config/seerr:/app/config
+      - "/mnt/media/config/seerr:/app/config"
     restart: unless-stopped
-
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: "lscr.io/linuxserver/radarr:latest"
     container_name: radarr
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
     volumes:
-      - radarr_config:/config
-      - /mnt/media/downloads:/downloads
-      - /mnt/media/movies:/movies
+      - "radarr_config:/config"
+      - "/mnt/media/downloads:/downloads"
+      - "/mnt/media/movies:/movies"
     ports:
-      - 7878:7878
+      - "7878:7878"
     restart: unless-stopped
-
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: "lscr.io/linuxserver/sonarr:latest"
     container_name: sonarr
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
     volumes:
-      - sonarr_config:/config
-      - /mnt/media/downloads:/downloads
-      - /mnt/media/tv:/tv
+      - "sonarr_config:/config"
+      - "/mnt/media/downloads:/downloads"
+      - "/mnt/media/tv:/tv"
     ports:
-      - 8989:8989
+      - "8989:8989"
     restart: unless-stopped
-
+  lidarr:
+    image: "lscr.io/linuxserver/lidarr:latest"
+    container_name: lidarr
+    environment:
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
+    volumes:
+      - "lidarr_config:/config"
+      - "/mnt/media/downloads:/downloads"
+      - "/mnt/media/music:/music"
+    ports:
+      - "8686:8686"
+    restart: unless-stopped
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: "lscr.io/linuxserver/prowlarr:latest"
     container_name: prowlarr
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
     volumes:
-      - prowlarr_config:/config
+      - "prowlarr_config:/config"
     ports:
-      - 9696:9696
+      - "9696:9696"
     restart: unless-stopped
-
   rdtclient:
-    image: rogerfar/rdtclient:latest
+    image: "rogerfar/rdtclient:latest"
     container_name: rdtclient
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
     volumes:
-      - rdtclient_data:/data/db
-      - /mnt/media/downloads:/data/downloads
-      - /mnt/ssd:/ssd
+      - "rdtclient_data:/data/db"
+      - "/mnt/media/downloads:/data/downloads"
+      - "/mnt/ssd:/ssd"
     ports:
-      - 6500:6500
+      - "6500:6500"
     restart: unless-stopped
-
   sabnzbd:
-    image: lscr.io/linuxserver/sabnzbd:latest
+    image: "lscr.io/linuxserver/sabnzbd:latest"
     container_name: sabnzbd
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
     volumes:
-      - sabnzbd_config:/config
-      - /mnt/media/downloads:/downloads
-      - /mnt/ssd:/ssd
+      - "sabnzbd_config:/config"
+      - "/mnt/media/downloads:/downloads"
+      - "/mnt/ssd:/ssd"
     ports:
-      - 8081:8080
+      - "8081:8080"
     restart: unless-stopped
-
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: "lscr.io/linuxserver/bazarr:latest"
     container_name: bazarr
     environment:
-      - PUID=${PUID-1000}
-      - PGID=${PGID-1000}
-      - TZ=${TZ}
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+      - "TZ=${TZ}"
     volumes:
-      - bazarr_config:/config
-      - /mnt/media/movies:/movies
-      - /mnt/media/tv:/tv
+      - "bazarr_config:/config"
+      - "/mnt/media/movies:/movies"
+      - "/mnt/media/tv:/tv"
     ports:
-      - 6767:6767
+      - "6767:6767"
     restart: unless-stopped
-
   maintainerr:
-    image: ghcr.io/maintainerr/maintainerr:latest
+    image: "ghcr.io/maintainerr/maintainerr:latest"
     container_name: maintainerr
     environment:
-      - TZ=${TZ}
+      - "TZ=${TZ}"
     volumes:
-      - maintainerr_data:/opt/data
+      - "maintainerr_data:/opt/data"
     ports:
-      - 6246:6246
+      - "6246:6246"
     restart: unless-stopped
-
   cleanuparr:
-    image: ghcr.io/cleanuparr/cleanuparr:latest
+    image: "ghcr.io/cleanuparr/cleanuparr:latest"
     container_name: cleanuparr
     environment:
-      - TZ=${TZ}
+      - "TZ=${TZ}"
+      - "PUID=${PUID-1000}"
+      - "PGID=${PGID-1000}"
+    volumes:
+      - "cleanuparr_config:/config"
+      - "/mnt/media/downloads:/downloads"
+    ports:
+      - "11011:11011"
+    restart: unless-stopped
+  recyclarr:
+    image: "ghcr.io/recyclarr/recyclarr:8"
+    container_name: recyclarr
+    user: "${PUID-1000}:${PGID-1000}"
+    environment:
+      - "TZ=${TZ}"
+      - RECYCLARR_CREATE_CONFIG=true
+    volumes:
+      - "/mnt/media/config/recyclarr:/config"
+    restart: unless-stopped
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    environment:
       - PUID=${PUID-1000}
       - PGID=${PGID-1000}
+      - TZ=${TZ}
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeName=MainNode
+    group_add:
+      - "44"
+      - "993"
     volumes:
-      - cleanuparr_config:/config
-      - /mnt/media/downloads:/downloads
+      - tdarr_server:/app/server
+      - tdarr_configs:/app/configs
+      - tdarr_logs:/app/logs
+      - /mnt/media:/media
+      - /mnt/ssd/transcode:/temp
     ports:
-      - 11011:11011
+      - 8265:8265
+      - 8266:8266
+    devices:
+      - /dev/dri:/dev/dri
     restart: unless-stopped
-
 volumes:
   jellyfin_config: null
   radarr_config: null
   sonarr_config: null
+  lidarr_config: null
   prowlarr_config: null
   sabnzbd_config: null
   rdtclient_data: null
   bazarr_config: null
   maintainerr_data: null
   cleanuparr_config: null
+  tdarr_server: null
+  tdarr_configs: null
+  tdarr_logs: null
