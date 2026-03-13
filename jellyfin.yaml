@@ -14,6 +14,7 @@ services:
       - "jellyfin_config:/config"
       - "/mnt/media/movies:/data/movies"
       - "/mnt/media/tv:/data/tvshows"
+      - "/mnt/media/music:/data/music"
       - "/mnt/ssd/transcode:/transcode"
     ports:
       - "8096:8096"
@@ -181,6 +182,7 @@ services:
       - inContainer=true
       - ffmpegVersion=7
       - nodeName=MainNode
+      - cacheDir=/temp
     group_add:
       - "44"
       - "993"
