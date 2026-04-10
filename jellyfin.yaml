@@ -102,8 +102,7 @@ services:
       - "TZ=${TZ}"
     volumes:
       - "rdtclient_data:/data/db"
-      - "/mnt/media/downloads:/data/downloads"
-      - "/mnt/ssd:/ssd"
+      - "/mnt/media/downloads:/downloads"
     ports:
       - "6500:6500"
     restart: unless-stopped
@@ -117,7 +116,6 @@ services:
     volumes:
       - "sabnzbd_config:/config"
       - "/mnt/media/downloads:/downloads"
-      - "/mnt/ssd:/ssd"
     ports:
       - "8081:8080"
     restart: unless-stopped
@@ -191,7 +189,6 @@ services:
       - tdarr_configs:/app/configs
       - tdarr_logs:/app/logs
       - /mnt/media:/media
-      - /mnt/ssd/transcode:/temp
     ports:
       - 8265:8265
       - 8266:8266
