@@ -67,20 +67,6 @@ services:
     ports:
       - "8989:8989"
     restart: unless-stopped
-  lidarr:
-    image: "lscr.io/linuxserver/lidarr:latest"
-    container_name: lidarr
-    environment:
-      - "PUID=${PUID-1000}"
-      - "PGID=${PGID-1000}"
-      - "TZ=${TZ}"
-    volumes:
-      - "lidarr_config:/config"
-      - "/mnt/media/downloads:/downloads"
-      - "/mnt/media/music:/music"
-    ports:
-      - "8686:8686"
-    restart: unless-stopped
   prowlarr:
     image: "lscr.io/linuxserver/prowlarr:latest"
     container_name: prowlarr
@@ -132,16 +118,6 @@ services:
       - "/mnt/media/tv:/tv"
     ports:
       - "6767:6767"
-    restart: unless-stopped
-  maintainerr:
-    image: "ghcr.io/maintainerr/maintainerr:latest"
-    container_name: maintainerr
-    environment:
-      - "TZ=${TZ}"
-    volumes:
-      - "maintainerr_data:/opt/data"
-    ports:
-      - "6246:6246"
     restart: unless-stopped
   cleanuparr:
     image: "ghcr.io/cleanuparr/cleanuparr:latest"
@@ -199,12 +175,10 @@ volumes:
   jellyfin_config: null
   radarr_config: null
   sonarr_config: null
-  lidarr_config: null
   prowlarr_config: null
   sabnzbd_config: null
   rdtclient_data: null
   bazarr_config: null
-  maintainerr_data: null
   cleanuparr_config: null
   tdarr_server: null
   tdarr_configs: null
