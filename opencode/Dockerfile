@@ -1,15 +1,56 @@
-FROM debian:bookworm-slim
+FROM ghcr.io/anomalyco/opencode:2.0.29
 
-RUN apt-get update && apt-get install -y \
-    curl git ca-certificates ripgrep fzf && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+      bash \
+      zsh \
+      git \
+      openssh-client \
+      curl \
+      wget \
+      ca-certificates \
+      jq \
+      fzf \
+      unzip \
+      zip \
+      tar \
+      nodejs-current \
+      npm \
+      python3 \
+      py3-pip \
+      ast-grep \
+    && git config --system user.name "opencode" && \
+    git config --system user.email "opencode@server.local" && \
+    npm install -g --ignore-scripts pnpm oh-my-opencode-slim@3.0.4 @dietrichgebert/ponytail
 
-RUN curl -fsSL https://opencode.ai/install | bash
+RUN mkdir -p /usr/lib/jvm/jdk-27 && \
+    curl -fsSL https://github.com/adoptium/temurin27-binaries/releases/download/jdk-27%2B35/OpenJDK27U-jdk_x64_alpine-linux_hotspot_27_35.tar.gz | tar xz --strip-components=1 -C /usr/lib/jvm/jdk-27
 
-RUN git config --system user.name "opencode" && \
-    git config --system user.email "opencode@server.local"
+ENV JAVA_HOME=/usr/lib/jvm/jdk-27
+
+RUN bash -c 'curl -fsSL https://get.sdkman.io | bash && \
+    sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/" /root/.sdkman/etc/config && \
+    source /root/.sdkman/bin/sdkman-init.sh && \
+    sdk install kotlin && \
+    sdk install gradle'
+
+ENV PATH="/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/gradle/current/bin:${JAVA_HOME}/bin:${PATH}"
+
+RUN git clone --depth 1 https://github.com/mattpocock/skills.git /opt/mattpocock-skills && \
+    mkdir -p /root/.config/opencode/skills && \
+    for cat in engineering productivity; do \
+      for d in /opt/mattpocock-skills/skills/$cat/*/; do \
+        [ -f "$d/SKILL.md" ] && ln -s "${d%/}" "/root/.config/opencode/skills/$(basename "$d")"; \
+      done; \
+    done
+
+RUN oh-my-opencode-slim install --no-tui --preset=openai --companion=no && \
+    node -e "const fs=require('fs');const f='/root/.config/opencode/opencode.json';const c=JSON.parse(fs.readFileSync(f,'utf8'));c.plugin=[...new Set([...(c.plugin||[]),'@dietrichgebert/ponytail'])];fs.writeFileSync(f,JSON.stringify(c,null,2))"
+
+ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" \
+    OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true \
+    OPENCODE_ENABLE_EXA=1
 
 WORKDIR /workspace
 EXPOSE 4096
 
-CMD ["opencode", "web", "--port", "4096", "--hostname", "0.0.0.0"]
+CMD ["serve", "--port", "4096", "--hostname", "0.0.0.0"]
