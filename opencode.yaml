@@ -2,10 +2,12 @@ services:
   opencode:
     build: ./opencode
     restart: unless-stopped
+    init: true
     ports:
       - "4096:4096"
     environment:
       - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
+      - TZ=${TZ:-UTC}
     volumes:
       - ./opencode/projects:/workspace
       - opencode-data:/root/.local/share/opencode
