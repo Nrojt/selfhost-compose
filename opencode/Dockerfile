@@ -48,6 +48,11 @@ RUN git clone --depth 1 https://github.com/mattpocock/skills.git /opt/mattpocock
 RUN oh-my-opencode-slim install --no-tui --preset=openai --companion=no && \
     node -e "const fs=require('fs');const f='/root/.config/opencode/opencode.json';const c=JSON.parse(fs.readFileSync(f,'utf8'));c.plugin=[...new Set([...(c.plugin||[]),'@dietrichgebert/ponytail'])];fs.writeFileSync(f,JSON.stringify(c,null,2))"
 
+RUN cp -a /root/.config/opencode /opt/opencode-config-template
+
+COPY seed-config.sh /usr/local/bin/seed-config.sh
+RUN chmod +x /usr/local/bin/seed-config.sh
+
 ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" \
     OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true \
     OPENCODE_ENABLE_EXA=1
@@ -55,4 +60,5 @@ ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" \
 WORKDIR /workspace
 EXPOSE 4096
 
-CMD ["serve", "--port", "4096", "--hostname", "0.0.0.0"]
+ENTRYPOINT ["seed-config.sh"]
+CMD ["opencode", "serve", "--port", "4096", "--hostname", "0.0.0.0"]

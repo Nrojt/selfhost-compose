@@ -12,6 +12,7 @@ services:
       - ./opencode/projects:/workspace
       - opencode-data:/root/.local/share/opencode
       - gh-config:/root/.config/gh
+      - opencode-config:/root/.config/opencode
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://opencode:${OPENCODE_SERVER_PASSWORD}@127.0.0.1:4096/api/info || exit 1"]
       interval: 30s
@@ -21,3 +22,4 @@ services:
 volumes:
   opencode-data:
   gh-config:
+  opencode-config:
