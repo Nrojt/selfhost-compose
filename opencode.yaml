@@ -1,0 +1,13 @@
+services:
+  opencode:
+    build: ./opencode
+    restart: unless-stopped
+    ports:
+      - "4096:4096"
+    environment:
+      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
+    volumes:
+      - ./opencode/projects:/workspace
+      - opencode-data:/root/.local/share/opencode
+volumes:
+  opencode-data:
