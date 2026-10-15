@@ -1,7 +1,6 @@
 services:
   jellyfin:
     image: "jellyfin/jellyfin:latest"
-    container_name: jellyfin
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -31,7 +30,6 @@ services:
     restart: unless-stopped
   seerr:
     image: "ghcr.io/seerr-team/seerr:latest"
-    container_name: seerr
     environment:
       - "TZ=${TZ}"
     ports:
@@ -41,7 +39,6 @@ services:
     restart: unless-stopped
   radarr:
     image: "lscr.io/linuxserver/radarr:latest"
-    container_name: radarr
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -55,7 +52,6 @@ services:
     restart: unless-stopped
   sonarr:
     image: "lscr.io/linuxserver/sonarr:latest"
-    container_name: sonarr
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -69,7 +65,6 @@ services:
     restart: unless-stopped
   prowlarr:
     image: "lscr.io/linuxserver/prowlarr:latest"
-    container_name: prowlarr
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -81,7 +76,6 @@ services:
     restart: unless-stopped
   rdtclient:
     image: "rogerfar/rdtclient:latest"
-    container_name: rdtclient
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -94,7 +88,6 @@ services:
     restart: unless-stopped
   sabnzbd:
     image: "lscr.io/linuxserver/sabnzbd:latest"
-    container_name: sabnzbd
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -107,7 +100,6 @@ services:
     restart: unless-stopped
   bazarr:
     image: "lscr.io/linuxserver/bazarr:latest"
-    container_name: bazarr
     environment:
       - "PUID=${PUID-1000}"
       - "PGID=${PGID-1000}"
@@ -121,7 +113,6 @@ services:
     restart: unless-stopped
   cleanuparr:
     image: "ghcr.io/cleanuparr/cleanuparr:latest"
-    container_name: cleanuparr
     environment:
       - "TZ=${TZ}"
       - "PUID=${PUID-1000}"
@@ -134,7 +125,6 @@ services:
     restart: unless-stopped
   recyclarr:
     image: "ghcr.io/recyclarr/recyclarr:8"
-    container_name: recyclarr
     user: "${PUID-1000}:${PGID-1000}"
     environment:
       - "TZ=${TZ}"
@@ -144,7 +134,6 @@ services:
     restart: unless-stopped
   tdarr:
     image: ghcr.io/haveagitgat/tdarr:latest
-    container_name: tdarr
     environment:
       - PUID=${PUID-1000}
       - PGID=${PGID-1000}

@@ -1,7 +1,6 @@
 services:
   aiostreams:
     image: ghcr.io/viren070/aiostreams:latest
-    container_name: aiostreams
     restart: unless-stopped
     pull_policy: always
     ports:
@@ -15,23 +14,19 @@ services:
       retries: 5
       start_period: 10s
 
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
+  nzbhydra2:
+    image: lscr.io/linuxserver/nzbhydra2:latest
     restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Amsterdam
+      - SERVICE_FQDN_NZBHYDRA_5076
     volumes:
-      - prowlarr-config:/config
-    ports:
-      - "9696:9696"
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1
-      - net.ipv6.conf.default.disable_ipv6=1
+      - ./data/nzbhydra2:/config
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
-      interval: 2s
+      test: ["CMD", "exit", "0"]
+      interval: 1m
       timeout: 10s
-      retries: 15
+      retries: 3
+      start_period: 30s
