@@ -18,8 +18,10 @@ RUN apk add --no-cache \
       python3 \
       py3-pip \
       ast-grep \
+      github-cli \
     && git config --system user.name "opencode" && \
     git config --system user.email "opencode@server.local" && \
+    git config --system --add credential.https://github.com.helper "gh auth git-credential" && \
     npm install -g --ignore-scripts pnpm oh-my-opencode-slim@3.0.4 @dietrichgebert/ponytail
 
 RUN mkdir -p /usr/lib/jvm/jdk-27 && \
