@@ -1,6 +1,6 @@
 services:
   aiostreams:
-    image: ghcr.io/viren070/aiostreams:v1.22.0
+    image: ghcr.io/viren070/aiostreams:v2.36.0
     restart: unless-stopped
     environment:
       - SERVICE_FQDN_AIOSTREAMS_3000
