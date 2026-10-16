@@ -4,6 +4,12 @@ services:
     restart: unless-stopped
     environment:
       - SERVICE_FQDN_AIOSTREAMS_3000
+      - BASE_URL=${BASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - AIOSTREAMS_AUTH=${AIOSTREAMS_AUTH}
+      - AIOSTREAMS_AUTH_PERMISSIONS=${AIOSTREAMS_AUTH_PERMISSIONS}
+      - AIOSTREAMS_AUTH_REQUIRED=true
+      - ALLOW_PRIVATE_URLS=false
     volumes:
       - ./data:/app/data
     healthcheck:
