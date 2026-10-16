@@ -3,7 +3,7 @@ services:
     build: ./opencode
     restart: unless-stopped
     init: true
-    mem_limit: 10g
+    mem_limit: 8g
     ports:
       - "4096:4096"
     environment:
