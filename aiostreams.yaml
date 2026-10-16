@@ -4,7 +4,6 @@ services:
     restart: unless-stopped
     environment:
       - SERVICE_FQDN_AIOSTREAMS_3000
-      - AIOSTREAMS_AUTH=${AIOSTREAMS_AUTH}
     volumes:
       - ./data:/app/data
     healthcheck:
