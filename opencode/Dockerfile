@@ -1,4 +1,4 @@
-FROM ghcr.io/anomalyco/opencode:2.0.30
+FROM ghcr.io/anomalyco/opencode:2.0.30@sha256:42bd27687408a53669f97cc62e3419d4a6f4a6ad0d640d83ef290aaf5d9b2d18
 
 RUN apk add --no-cache \
       bash \
