@@ -1,6 +1,6 @@
 services:
   aiostreams:
-    image: ghcr.io/viren070/aiostreams:v2.36.0
+    image: ghcr.io/viren070/aiostreams:v2.36.0@sha256:83893d1c37eaaaf9ad1e9286bd857220a6b8f042a4f1eac3fa7356017aa2b184
     restart: unless-stopped
     environment:
       - SERVICE_FQDN_AIOSTREAMS_3000
@@ -20,7 +20,7 @@ services:
       start_period: 10s
 
   nzbhydra2:
-    image: lscr.io/linuxserver/nzbhydra2:9.1.1
+    image: lscr.io/linuxserver/nzbhydra2:9.1.1@sha256:42cd8d210c005fc1e04fe561350a479d42f90d60d1557c7161673152b5c1654e
     restart: unless-stopped
     stop_grace_period: 120s
     environment:
