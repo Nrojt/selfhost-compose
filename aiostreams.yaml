@@ -9,7 +9,7 @@ services:
       - AIOSTREAMS_AUTH=${AIOSTREAMS_AUTH}
       - AIOSTREAMS_AUTH_PERMISSIONS=${AIOSTREAMS_AUTH_PERMISSIONS}
       - AIOSTREAMS_AUTH_REQUIRED=true
-      - ALLOW_PRIVATE_URLS=false
+      - ALLOW_PRIVATE_URLS=true
     volumes:
       - ./data:/app/data
     healthcheck:
