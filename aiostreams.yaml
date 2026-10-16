@@ -1,8 +1,7 @@
 services:
   aiostreams:
-    image: ghcr.io/viren070/aiostreams:latest
+    image: ghcr.io/viren070/aiostreams:v1.22.0
     restart: unless-stopped
-    pull_policy: always
     ports:
       - "3000:3000"
     volumes:
@@ -15,7 +14,7 @@ services:
       start_period: 10s
 
   nzbhydra2:
-    image: lscr.io/linuxserver/nzbhydra2:latest
+    image: lscr.io/linuxserver/nzbhydra2:9.1.1
     restart: unless-stopped
     environment:
       - PUID=1000
