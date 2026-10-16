@@ -3,11 +3,15 @@ services:
     image: caddy:2.10.2
     restart: unless-stopped
     command: caddy reverse-proxy --from http://:8080 --to ${SERVICE_IP}:8096
+    expose:
+      - "8080"
     environment:
       - SERVICE_FQDN_JELLYFIN_EDGE_8080
   jellyseerr-edge:
     image: caddy:2.10.2
     restart: unless-stopped
     command: caddy reverse-proxy --from http://:8080 --to ${SERVICE_IP}:5055
+    expose:
+      - "8080"
     environment:
       - SERVICE_FQDN_JELLYSEERR_EDGE_8080
