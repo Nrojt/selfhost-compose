@@ -3,6 +3,7 @@ services:
     build: ./opencode
     restart: unless-stopped
     init: true
+    mem_limit: 10g
     ports:
       - "4096:4096"
     environment:
@@ -19,6 +20,28 @@ services:
       timeout: 10s
       start_period: 60s
       retries: 3
+
+  t3:
+    build: ./opencode/t3
+    restart: unless-stopped
+    init: true
+    mem_limit: 2g
+    depends_on:
+      - opencode
+    ports:
+      - "3773:3773"
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./opencode/projects:/workspace
+      - opencode-data:/root/.local/share/opencode
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:3773/.well-known/t3/environment || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
 volumes:
   opencode-data:
   gh-config:
