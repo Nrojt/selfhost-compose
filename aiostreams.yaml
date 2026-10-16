@@ -2,8 +2,8 @@ services:
   aiostreams:
     image: ghcr.io/viren070/aiostreams:v1.22.0
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    environment:
+      - SERVICE_FQDN_AIOSTREAMS_3000
     volumes:
       - ./data:/app/data
     healthcheck:
