@@ -19,6 +19,13 @@ RUN apk add --no-cache \
       py3-pip \
       ast-grep \
       github-cli \
+      go \
+      rust \
+      cargo \
+      gcc \
+      musl-dev \
+      gopls \
+      rust-analyzer \
     && git config --system user.name "opencode" && \
     git config --system user.email "opencode@server.local" && \
     git config --system --add credential.https://github.com.helper "gh auth git-credential" && \
