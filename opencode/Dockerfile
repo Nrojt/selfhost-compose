@@ -26,6 +26,15 @@ RUN apk add --no-cache \
       musl-dev \
       gopls \
       rust-analyzer \
+      ripgrep \
+      fd \
+      make \
+      yq \
+      uv \
+      shellcheck \
+      sqlite \
+      docker-cli \
+      docker-cli-compose \
     && git config --system user.name "opencode" && \
     git config --system user.email "opencode@server.local" && \
     git config --system --add credential.https://github.com.helper "gh auth git-credential" && \
