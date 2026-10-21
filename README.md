@@ -27,4 +27,4 @@ Each root-level `*.yaml` file is one independently deployable stack. Directory-b
 
 ## Renovate
 
-`renovate.json` watches every root-level compose file plus both Dockerfiles, pins digests, and groups update PRs per stack.
+`renovate.json` watches every root-level compose file plus the Dockerfile, pins digests, and groups update PRs per stack.
