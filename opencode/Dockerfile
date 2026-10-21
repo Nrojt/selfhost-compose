@@ -87,7 +87,7 @@ done
 exec socat STDIO TCP:127.0.0.1:"$PORT"
 EOF
 RUN chmod +x /usr/local/bin/godot-lsp && \
-    npm install -g github:Coding-Solo/godot-mcp
+    npm install -g @coding-solo/godot-mcp@0.1.1
 
 ENV PATH="/root/.local/bin:${PATH}"
 
