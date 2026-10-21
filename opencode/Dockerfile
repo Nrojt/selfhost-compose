@@ -1,3 +1,7 @@
+# Debian glibc for the Godot binary: official builds are glibc-linked and fail
+# under musl's gcompat shim, so they run against a private loader instead.
+FROM debian:trixie-slim@sha256:62bd423aeee912639ca8ee681c2b762cb3e25137e0a92b20be455898a9f034ad AS glibc
+
 FROM ghcr.io/anomalyco/opencode:2.1.2@sha256:d91c668b3390b5416fee4803ffd0936ad30c3e118f550e7ad6d2fabc8b974b00
 
 RUN apk add --no-cache \
@@ -52,6 +56,17 @@ RUN bash -c 'curl -fsSL https://get.sdkman.io | bash && \
     sdk install gradle'
 
 ENV PATH="/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/gradle/current/bin:${JAVA_HOME}/bin:${PATH}"
+
+COPY --from=glibc /usr/lib/x86_64-linux-gnu/ /opt/glibc/
+
+RUN mkdir -p /opt/godot && \
+    curl -fsSL -o /tmp/godot.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip && \
+    unzip -q /tmp/godot.zip -d /opt/godot && rm /tmp/godot.zip && \
+    printf '#!/bin/sh\nexec /opt/glibc/ld-linux-x86-64.so.2 --library-path /opt/glibc /opt/godot/Godot_v4.7.2-stable_linux.x86_64 "$@"\n' > /usr/local/bin/godot && \
+    chmod +x /usr/local/bin/godot && \
+    uv tool install 'gdtoolkit==4.*'
+
+ENV PATH="/root/.local/bin:${PATH}"
 
 RUN git clone --depth 1 https://github.com/mattpocock/skills.git /opt/mattpocock-skills && \
     mkdir -p /root/.config/opencode/skills && \
