@@ -11,7 +11,7 @@ Each root-level `*.yaml` file is one independently deployable stack. Directory-b
 | `aiostreams.yaml` | [AIOStreams](https://github.com/Viren070/AIOStreams) (Stremio addon) + NZBHydra2 |
 | `jellyfin.yaml` | Media server stack: Jellyfin, *arr suite, download clients, Tdarr |
 | `jellyfin-proxy.yaml` | Public reverse-proxy edge for selected internal services |
-| `opencode.yaml` | [OpenCode](https://opencode.ai) server + T3 Code sidecar (built from `opencode/`) |
+| `opencode.yaml` | [OpenCode](https://opencode.ai) server (built from `opencode/`) |
 
 ## How it's deployed
 
@@ -27,4 +27,4 @@ Each root-level `*.yaml` file is one independently deployable stack. Directory-b
 
 ## Renovate
 
-`renovate.json` watches every root-level compose file plus both Dockerfiles, pins digests, and groups update PRs per stack.
+`renovate.json` watches every root-level compose file plus the Dockerfile, pins digests, and groups update PRs per stack.
