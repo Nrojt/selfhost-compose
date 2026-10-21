@@ -8,5 +8,19 @@
     "fileMatch": [
       "^[^/]+\\.ya?ml$"
     ]
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^opencode/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG GODOT_VERSION=(?<currentValue>\\S+)"
+      ],
+      "datasource": "github-releases",
+      "depName": "godotengine/godot",
+      "versioning": "semver"
+    }
+  ]
 }
