@@ -24,6 +24,9 @@ RUN apk add --no-cache \
       npm \
       python3 \
       py3-pip \
+      py3-numpy \
+      py3-opencv \
+      py3-pillow \
       ast-grep \
       github-cli \
       go \
@@ -138,6 +141,61 @@ description: Work on Godot 4 projects headlessly - import assets, run scenes, va
 - Headless means no rendering - verify visuals via logic scripts and exit
   codes, not screenshots.
 - Never hand-edit `.godot/` or `*.uid` files; regenerate with `--import`.
+EOF
+
+COPY inpaint /usr/local/bin/inpaint
+RUN chmod +x /usr/local/bin/inpaint
+
+COPY <<'EOF' /root/.config/opencode/skills/inpaint/SKILL.md
+---
+name: inpaint
+description: Fill or remove a marked region of an image. Use for watermark/text/scratch removal, patching defects, or replacing an object with plausible background when the user asks to inpaint, clean up, or retouch an image using a mask.
+---
+
+## Tools in this container
+
+`inpaint IMAGE MASK OUT [--radius 5] [--ai "PROMPT"]`
+
+The mask is any image where white (or opaque alpha) marks the pixels to
+replace; it is resized to the input's size. Local OpenCV fill is the default
+(Telea, `--radius` in pixels). `--ai PROMPT` re-generates the frame through
+OpenRouter instead and needs `OPENROUTER_API_KEY`; the prompt should describe
+what belongs in the marked area. `INPAINT_MODEL` overrides the default
+`google/gemini-3.1-flash-image`.
+
+## Workflow
+
+1. Look at the image first (read it) and decide the exact region to replace.
+2. Make a mask with Pillow - a separate file, white on black:
+
+   ```bash
+   python3 - <<'PY'
+   from PIL import Image, ImageDraw
+   m = Image.new("L", (WIDTH, HEIGHT), 0)
+   ImageDraw.Draw(m).rectangle([x0, y0, x1, y1], fill=255)
+   m.save("mask.png")
+   PY
+   ```
+
+3. Run `inpaint`, then read `OUT` to confirm the result before reporting it.
+
+## Which mode
+
+- Local: small, flat or textured defects (text, logos, scratches, dust). Fast,
+  offline, leaves every pixel outside the mask untouched.
+- `--ai`: large or structural holes where the fill must look like something
+  (a removed person, a rebuilt wall). Slower, costs roughly $0.01-0.10 per
+  image, and returns a re-generated frame - resolution may change and pixels
+  outside the mask may drift slightly.
+
+## Gotchas
+
+- The mask must extend a few pixels past the defect; a mask tighter than the
+  defect lets the defect bleed back in during the local fill.
+- Local fill invents smooth color only - it cannot restore structure, and a
+  large mask collapses into a smear. Use `--ai` for structure.
+- A missing key or a 400 from OpenRouter is an environment problem: report it
+  instead of silently falling back to the local fill.
 EOF
 
 RUN cp -a /root/.config/opencode /opt/opencode-config-template
