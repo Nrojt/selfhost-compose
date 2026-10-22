@@ -8,6 +8,7 @@ services:
       - "4096:4096"
     environment:
       - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - TZ=${TZ:-UTC}
     volumes:
       - ./opencode/projects:/workspace
