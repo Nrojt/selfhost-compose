@@ -8,7 +8,7 @@ services:
     environment:
       - SERVICE_FQDN_JELLYFIN_EDGE_8080
     healthcheck:
-      test: "wget -q --spider http://localhost:8080/ || exit 1"
+      test: "curl -fsS http://localhost:8080/ || exit 1"
       interval: 30s
       timeout: 10s
       retries: 3
@@ -22,7 +22,7 @@ services:
     environment:
       - SERVICE_FQDN_JELLYSEERR_EDGE_8080
     healthcheck:
-      test: "wget -q --spider http://localhost:8080/ || exit 1"
+      test: "curl -fsS http://localhost:8080/ || exit 1"
       interval: 30s
       timeout: 10s
       retries: 3
