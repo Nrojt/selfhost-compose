@@ -36,6 +36,12 @@ services:
       - "5055:5055"
     volumes:
       - "/mnt/media/config/seerr:/app/config"
+    healthcheck:
+      test: "node -e 'fetch(\"http://localhost:5055/api/v1/status\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   radarr:
     image: "lscr.io/linuxserver/radarr:6.4.4@sha256:fc0ae3c50f8128b97e84381903ec8d6845c3a569641cb7117c124376cccb57c1"
@@ -49,6 +55,12 @@ services:
       - "/mnt/media/movies:/movies"
     ports:
       - "7878:7878"
+    healthcheck:
+      test: "curl -fs http://localhost:7878/ping || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   sonarr:
     image: "lscr.io/linuxserver/sonarr:4.0.20@sha256:889dcc58c6aea859033985894b519b2e6b1e55d92527ed123f9f52e42ae7c97b"
@@ -62,6 +74,12 @@ services:
       - "/mnt/media/tv:/tv"
     ports:
       - "8989:8989"
+    healthcheck:
+      test: "curl -fs http://localhost:8989/ping || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   prowlarr:
     image: "lscr.io/linuxserver/prowlarr:2.6.5@sha256:b3b00047ed20f6ce2b16780145cb6a0acb51c9e28ea6aa6f5dcd33c7034f1797"
@@ -73,6 +91,12 @@ services:
       - "prowlarr_config:/config"
     ports:
       - "9696:9696"
+    healthcheck:
+      test: "curl -fs http://localhost:9696/ping || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   rdtclient:
     image: "rogerfar/rdtclient:2.0.143@sha256:68523637d09ec8a120bd272756d58b393448a656b5967bd45622c4891c65ff36"
@@ -85,6 +109,12 @@ services:
       - "/mnt/media/downloads:/downloads"
     ports:
       - "6500:6500"
+    healthcheck:
+      test: "curl -fs http://localhost:6500/ || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   sabnzbd:
     image: "lscr.io/linuxserver/sabnzbd:5.1.3@sha256:7a13af91cf296399e302d2fb6fc709d6e2ea15e3094f220684611fbe1dd43625"
@@ -97,6 +127,12 @@ services:
       - "/mnt/media/downloads:/downloads"
     ports:
       - "8081:8080"
+    healthcheck:
+      test: "curl -fs http://localhost:8080/ || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   bazarr:
     image: "lscr.io/linuxserver/bazarr:1.6.2@sha256:946dc8c5bb5331418eac60050cf40a63cb8f66ac039841dda493870e3559799c"
@@ -110,6 +146,12 @@ services:
       - "/mnt/media/tv:/tv"
     ports:
       - "6767:6767"
+    healthcheck:
+      test: "curl -fs http://localhost:6767/ || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   cleanuparr:
     image: "ghcr.io/cleanuparr/cleanuparr:2.10.12@sha256:d0212e4c66bd0522e23c5e5da5d3006bd5ff0e0de1e3ecfcf892e039d55721e2"
@@ -122,6 +164,12 @@ services:
       - "/mnt/media/downloads:/downloads"
     ports:
       - "11011:11011"
+    healthcheck:
+      test: "curl -fs http://localhost:11011/ || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
   recyclarr:
     image: "ghcr.io/recyclarr/recyclarr:8@sha256:b1fbb929ba718fdbdac2c1fc25b32b0ae916d7a5a0892c2068c9bfae6f1a9209"
@@ -159,6 +207,12 @@ services:
       - 8266:8266
     devices:
       - /dev/dri:/dev/dri
+    healthcheck:
+      test: "curl -fs http://localhost:8265/ || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     restart: unless-stopped
 volumes:
   jellyfin_config: {}
