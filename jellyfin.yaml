@@ -161,14 +161,36 @@ services:
       - /dev/dri:/dev/dri
     restart: unless-stopped
 volumes:
-  jellyfin_config: null
-  radarr_config: null
-  sonarr_config: null
-  prowlarr_config: null
-  sabnzbd_config: null
-  rdtclient_data: null
-  bazarr_config: null
-  cleanuparr_config: null
-  tdarr_server: null
-  tdarr_configs: null
-  tdarr_logs: null
+  jellyfin_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_jellyfin-config
+  radarr_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_radarr-config
+  sonarr_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_sonarr-config
+  prowlarr_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_prowlarr-config
+  sabnzbd_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_sabnzbd-config
+  rdtclient_data:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_rdtclient-data
+  bazarr_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_bazarr-config
+  cleanuparr_config:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_cleanuparr-config
+  tdarr_server:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_tdarr-server
+  tdarr_configs:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_tdarr-configs
+  tdarr_logs:
+    external: true
+    name: gswowco8ok00w4skkoos8sow_tdarr-logs
