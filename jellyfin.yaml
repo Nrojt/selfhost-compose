@@ -161,36 +161,14 @@ services:
       - /dev/dri:/dev/dri
     restart: unless-stopped
 volumes:
-  jellyfin_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_jellyfin-config
-  radarr_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_radarr-config
-  sonarr_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_sonarr-config
-  prowlarr_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_prowlarr-config
-  sabnzbd_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_sabnzbd-config
-  rdtclient_data:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_rdtclient-data
-  bazarr_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_bazarr-config
-  cleanuparr_config:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_cleanuparr-config
-  tdarr_server:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_tdarr-server
-  tdarr_configs:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_tdarr-configs
-  tdarr_logs:
-    external: true
-    name: gswowco8ok00w4skkoos8sow_tdarr-logs
+  jellyfin_config: {}
+  radarr_config: {}
+  sonarr_config: {}
+  prowlarr_config: {}
+  sabnzbd_config: {}
+  rdtclient_data: {}
+  bazarr_config: {}
+  cleanuparr_config: {}
+  tdarr_server: {}
+  tdarr_configs: {}
+  tdarr_logs: {}
