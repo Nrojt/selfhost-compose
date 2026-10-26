@@ -9,6 +9,11 @@
       "^[^/]+\\.ya?ml$"
     ]
   },
+  "dockerfile": {
+    "fileMatch": [
+      "(^|/)Dockerfile$"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
