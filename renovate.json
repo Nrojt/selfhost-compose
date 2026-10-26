@@ -18,9 +18,9 @@
       "matchStrings": [
         "ARG GODOT_VERSION=(?<currentValue>\\S+)"
       ],
-      "datasource": "github-releases",
-      "depName": "godotengine/godot",
-      "versioning": "semver"
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "godotengine/godot",
+      "versioningTemplate": "semver"
     }
   ]
 }
