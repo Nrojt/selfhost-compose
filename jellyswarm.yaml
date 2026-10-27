@@ -1,8 +1,5 @@
-# Jellyswarm: combines the homeserver Jellyfin and the AIOStreams
+# Jellyswarm: combines the actual Jellyfin server and the AIOStreams
 # Jellyfin-compatible server (/jellyfin) into one Jellyfin API.
-# Backends are configured in its UI at /ui:
-#   - Jellyfin:    http://${SERVICE_IP}:8096 (over Tailscale)
-#   - AIOStreams:  https://aiostreams.nrojt.com/jellyfin
 # Healthcheck is built into the image (/health, /ready).
 services:
   jellyswarrm:
