@@ -10,7 +10,8 @@ Each root-level `*.yaml` file is one independently deployable stack. Directory-b
 |---|---|
 | `aiostreams.yaml` | [AIOStreams](https://github.com/Viren070/AIOStreams) (Stremio addon) + NZBHydra2 |
 | `jellyfin.yaml` | Media server stack: Jellyfin, *arr suite, download clients, Tdarr |
-| `jellyfin-proxy.yaml` | Public reverse-proxy edge for selected internal services |
+| `proxy.yaml` | Public reverse-proxy edge for selected internal services |
+| `jellyswarm.yaml` | [Jellyswarrm](https://github.com/LLukas22/Jellyswarrm): combines the Jellyfin and AIOStreams media servers into one |
 | `opencode.yaml` | [OpenCode](https://opencode.ai) server (built from `opencode/`) |
 
 ## How it's deployed
