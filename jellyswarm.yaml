@@ -3,7 +3,9 @@
 # Healthcheck is built into the image (/health, /ready).
 services:
   jellyswarrm:
-    image: ghcr.io/llukas22/jellyswarrm:0.3.1@sha256:cb145e7391e5cf583bd7f28b0e2d866e93ad95f603e1cdf2d88085390f7f83fa
+    # main, not a release: the image-redirect fix (LLukas22/Jellyswarrm#213) is unreleased. Renovate won't offer version
+    # bumps while the tag is main, so switch back to a release tag once 0.3.2 exists.
+    image: ghcr.io/llukas22/jellyswarrm:main@sha256:9e784c708d8d5cf299741e02d0826ea2377ef6b7521ab8ea406ec6b9fec24909
     restart: unless-stopped
     expose:
       - "3000"

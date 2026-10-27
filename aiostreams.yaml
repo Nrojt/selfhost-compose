@@ -10,6 +10,8 @@ services:
       - AIOSTREAMS_AUTH_PERMISSIONS=${AIOSTREAMS_AUTH_PERMISSIONS}
       - AIOSTREAMS_AUTH_REQUIRED=true
       - ALLOW_PRIVATE_URLS=true
+      # relay instead of 302 to TMDB: Jellyswarrm <0.3.2 replays the upstream Host header on image redirects and gets 403. shortcut: remove once Jellyswarrm ships LLukas22/Jellyswarrm#213 (main has it, no release yet).
+      - JELLYFIN_IMAGE_DELIVERY=relay
     volumes:
       - ./data:/app/data
     healthcheck:
