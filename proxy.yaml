@@ -1,6 +1,6 @@
 services:
   jellyfin-edge:
-    image: caddy:2.11.7@sha256:36c24ad91a7ff7bc4c87fe22bfa8df3c4b18da0773d73fc12ee2c52b98c0bb7e
+    image: caddy:2.11.9@sha256:0c2243efcf437ab7f7a978f1027fcf0d4f9be8a75df27b1b3fbc5dbe0ffa8cf0
     restart: unless-stopped
     command: caddy reverse-proxy --from http://:8080 --to ${SERVICE_IP}:8096
     expose:
@@ -14,7 +14,7 @@ services:
       retries: 3
       start_period: 30s
   jellyseerr-edge:
-    image: caddy:2.11.7@sha256:36c24ad91a7ff7bc4c87fe22bfa8df3c4b18da0773d73fc12ee2c52b98c0bb7e
+    image: caddy:2.11.9@sha256:0c2243efcf437ab7f7a978f1027fcf0d4f9be8a75df27b1b3fbc5dbe0ffa8cf0
     restart: unless-stopped
     command: caddy reverse-proxy --from http://:8080 --to ${SERVICE_IP}:5055
     expose:
