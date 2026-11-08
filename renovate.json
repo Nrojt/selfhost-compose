@@ -5,20 +5,20 @@
   ],
   "pinDigests": true,
   "docker-compose": {
-    "fileMatch": [
-      "^[^/]+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/^[^/]+\\.ya?ml$/"
     ]
   },
   "dockerfile": {
-    "fileMatch": [
-      "(^|/)Dockerfile$"
+    "managerFilePatterns": [
+      "/(^|/)Dockerfile$/"
     ]
   },
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "^opencode/Dockerfile$"
+      "managerFilePatterns": [
+        "/^opencode/Dockerfile$/"
       ],
       "matchStrings": [
         "ARG GODOT_VERSION=(?<currentValue>\\S+)"
