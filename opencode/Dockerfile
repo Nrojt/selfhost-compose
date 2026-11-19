@@ -2,7 +2,7 @@
 # under musl's gcompat shim, so they run against a private loader instead.
 FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 AS glibc
 
-FROM ghcr.io/anomalyco/opencode:2.3.0@sha256:998e3e184c650e603d8bacb5cbeaeb090837078262c25521a7136b0375d2b652
+FROM ghcr.io/anomalyco/opencode:2.3.2@sha256:be07cc4afd6d668d91b77accf1bc4338c87b39fbacc0a61666eb003781015f5a
 
 # Renovate bumps this via the customManager in renovate.json (github-releases).
 ARG GODOT_VERSION=4.7.2-stable
