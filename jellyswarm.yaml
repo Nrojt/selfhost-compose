@@ -5,7 +5,7 @@ services:
   jellyswarrm:
     # main, not a release: the image-redirect fix (LLukas22/Jellyswarrm#213) is unreleased. Renovate won't offer version
     # bumps while the tag is main, so switch back to a release tag once 0.3.2 exists.
-    image: ghcr.io/llukas22/jellyswarrm:main@sha256:93e8413eb1c4a6707226357211d2c012e35fef62fb39b8e7533d1491c75a8ae8
+    image: ghcr.io/llukas22/jellyswarrm:main@sha256:1aa78618e30f6d66c20167394f435cf8f93848d599b59fda1bd03a3cb7d25b8f
     restart: unless-stopped
     expose:
       - "3000"
