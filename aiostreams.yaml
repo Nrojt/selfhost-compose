@@ -22,7 +22,7 @@ services:
       start_period: 10s
 
   nzbhydra2:
-    image: lscr.io/linuxserver/nzbhydra2:9.3.3@sha256:924939b98fe18398f306e69f0a123f4fb92dd3651a8aef1a1d7b5d78d7b6c197
+    image: lscr.io/linuxserver/nzbhydra2:9.3.4@sha256:7d272e5d458dc0d20399a28bf41efcecdfef334c5220067546ea80cf6692966a
     restart: unless-stopped
     stop_grace_period: 120s
     environment:
